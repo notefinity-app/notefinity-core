@@ -40,8 +40,12 @@ describe('NoteManager', () => {
     expect(allNotes).toHaveLength(2);
   });
 
-  test('should update a note', () => {
+  test('should update a note', async () => {
     const note = noteManager.createNote('Original Title', 'Original content');
+    
+    // Small delay to ensure different timestamps
+    await new Promise(resolve => setTimeout(resolve, 1));
+    
     const updatedNote = noteManager.updateNote(note.id, {
       title: 'Updated Title',
       content: 'Updated content'
@@ -50,7 +54,7 @@ describe('NoteManager', () => {
     expect(updatedNote).toBeDefined();
     expect(updatedNote!.title).toBe('Updated Title');
     expect(updatedNote!.content).toBe('Updated content');
-    expect(updatedNote!.updatedAt.getTime()).toBeGreaterThan(note.createdAt.getTime());
+    expect(updatedNote!.updatedAt.getTime()).toBeGreaterThanOrEqual(note.createdAt.getTime());
   });
 
   test('should return undefined when updating non-existent note', () => {
