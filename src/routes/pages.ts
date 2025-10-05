@@ -2,15 +2,42 @@ import { Request, Response, Router } from 'express';
 import Joi from 'joi';
 import { DatabaseService } from '../services/database-service';
 import { Logger } from '../services/logger';
-import { ApiResponse } from '../types';
+import { ApiResponse, Page } from '../types';
+
+const encryptedBlobSchema = Joi.object({
+  algorithm: Joi.string().required(),
+  data: Joi.string().required(),
+  keyHint: Joi.string().optional(),
+  version: Joi.number().integer().min(1).required(),
+});
 
 const createPageSchema = Joi.object({
-  title: Joi.string().min(1).max(500).required(),
-  content: Joi.string().allow('').max(1000000), // Allow empty content, max 1MB
+  title: Joi.string().min(1).max(500).when('isEncrypted', {
+    is: true,
+    then: Joi.optional(), // Title is optional when encrypted (encryptedTitle will be provided)
+    otherwise: Joi.required(),
+  }),
+  content: Joi.string().allow('').max(1000000).when('isEncrypted', {
+    is: true,
+    then: Joi.optional(), // Content is optional when encrypted (encryptedContent will be provided)
+    otherwise: Joi.optional(),
+  }),
   tags: Joi.array().items(Joi.string().max(50)).max(20), // Max 20 tags, 50 chars each
   type: Joi.string().valid('space', 'folder', 'page').default('page'),
   parentId: Joi.string().allow(null),
   position: Joi.number().integer().min(0).default(0),
+  // End-to-end encryption fields
+  isEncrypted: Joi.boolean().default(false),
+  encryptedContent: encryptedBlobSchema.when('isEncrypted', {
+    is: true,
+    then: Joi.required(),
+    otherwise: Joi.forbidden(),
+  }),
+  encryptedTitle: encryptedBlobSchema.when('isEncrypted', {
+    is: true,
+    then: Joi.required(),
+    otherwise: Joi.forbidden(),
+  }),
 });
 
 const updatePageSchema = Joi.object({
@@ -19,7 +46,33 @@ const updatePageSchema = Joi.object({
   tags: Joi.array().items(Joi.string().max(50)).max(20),
   parentId: Joi.string().allow(null),
   position: Joi.number().integer().min(0),
+  // End-to-end encryption fields
+  isEncrypted: Joi.boolean(),
+  encryptedContent: encryptedBlobSchema,
+  encryptedTitle: encryptedBlobSchema,
 }).min(1); // At least one field required
+
+// Helper function to serialize a page for API response
+function serializePage(page: Page) {
+  return {
+    id: page._id,
+    title: page.title,
+    content: page.content,
+    tags: page.tags || [],
+    type: page.type,
+    parentId: page.parentId,
+    position: page.position,
+    children: page.children || [],
+    createdAt: page.createdAt,
+    updatedAt: page.updatedAt,
+    // Include encryption fields if present
+    ...(page.isEncrypted && {
+      isEncrypted: page.isEncrypted,
+      encryptedContent: page.encryptedContent,
+      encryptedTitle: page.encryptedTitle,
+    }),
+  };
+}
 
 export function pagesRoutes(databaseService: DatabaseService, logger: Logger): Router {
   const router = Router();
@@ -41,18 +94,7 @@ export function pagesRoutes(databaseService: DatabaseService, logger: Logger): R
       res.json({
         success: true,
         data: {
-          pages: pages.map(page => ({
-            id: page._id,
-            title: page.title,
-            content: page.content,
-            tags: page.tags || [],
-            type: page.type,
-            parentId: page.parentId,
-            position: page.position,
-            children: page.children || [],
-            createdAt: page.createdAt,
-            updatedAt: page.updatedAt,
-          })),
+          pages: pages.map(serializePage),
         },
       } as ApiResponse);
     } catch (error) {
@@ -82,18 +124,7 @@ export function pagesRoutes(databaseService: DatabaseService, logger: Logger): R
       res.json({
         success: true,
         data: {
-          spaces: spaces.map(space => ({
-            id: space._id,
-            title: space.title,
-            content: space.content,
-            tags: space.tags || [],
-            type: space.type,
-            parentId: space.parentId,
-            position: space.position,
-            children: space.children || [],
-            createdAt: space.createdAt,
-            updatedAt: space.updatedAt,
-          })),
+          spaces: spaces.map(serializePage),
         },
       } as ApiResponse);
     } catch (error) {
@@ -132,18 +163,7 @@ export function pagesRoutes(databaseService: DatabaseService, logger: Logger): R
       res.json({
         success: true,
         data: {
-          page: {
-            id: page._id,
-            title: page.title,
-            content: page.content,
-            tags: page.tags || [],
-            type: page.type,
-            parentId: page.parentId,
-            position: page.position,
-            children: page.children || [],
-            createdAt: page.createdAt,
-            updatedAt: page.updatedAt,
-          },
+          page: serializePage(page),
         },
       } as ApiResponse);
     } catch (error) {
@@ -191,18 +211,7 @@ export function pagesRoutes(databaseService: DatabaseService, logger: Logger): R
       res.status(201).json({
         success: true,
         data: {
-          page: {
-            id: page._id,
-            title: page.title,
-            content: page.content,
-            tags: page.tags || [],
-            type: page.type,
-            parentId: page.parentId,
-            position: page.position,
-            children: page.children || [],
-            createdAt: page.createdAt,
-            updatedAt: page.updatedAt,
-          },
+          page: serializePage(page),
         },
         message: 'Page created successfully',
       } as ApiResponse);
@@ -246,18 +255,7 @@ export function pagesRoutes(databaseService: DatabaseService, logger: Logger): R
       res.json({
         success: true,
         data: {
-          page: {
-            id: updatedPage._id,
-            title: updatedPage.title,
-            content: updatedPage.content,
-            tags: updatedPage.tags || [],
-            type: updatedPage.type,
-            parentId: updatedPage.parentId,
-            position: updatedPage.position,
-            children: updatedPage.children || [],
-            createdAt: updatedPage.createdAt,
-            updatedAt: updatedPage.updatedAt,
-          },
+          page: serializePage(updatedPage),
         },
         message: 'Page updated successfully',
       } as ApiResponse);
@@ -336,18 +334,7 @@ export function pagesRoutes(databaseService: DatabaseService, logger: Logger): R
       res.json({
         success: true,
         data: {
-          children: children.map(child => ({
-            id: child._id,
-            title: child.title,
-            content: child.content,
-            tags: child.tags || [],
-            type: child.type,
-            parentId: child.parentId,
-            position: child.position,
-            children: child.children || [],
-            createdAt: child.createdAt,
-            updatedAt: child.updatedAt,
-          })),
+          children: children.map(serializePage),
         },
       } as ApiResponse);
     } catch (error) {
@@ -399,18 +386,7 @@ export function pagesRoutes(databaseService: DatabaseService, logger: Logger): R
       res.json({
         success: true,
         data: {
-          page: {
-            id: movedNote._id,
-            title: movedNote.title,
-            content: movedNote.content,
-            tags: movedNote.tags || [],
-            type: movedNote.type,
-            parentId: movedNote.parentId,
-            position: movedNote.position,
-            children: movedNote.children || [],
-            createdAt: movedNote.createdAt,
-            updatedAt: movedNote.updatedAt,
-          },
+          page: serializePage(movedNote),
         },
         message: 'Node moved successfully',
       } as ApiResponse);
@@ -450,18 +426,7 @@ export function pagesRoutes(databaseService: DatabaseService, logger: Logger): R
       res.json({
         success: true,
         data: {
-          path: path.map(node => ({
-            id: node._id,
-            title: node.title,
-            content: node.content,
-            tags: node.tags || [],
-            type: node.type,
-            parentId: node.parentId,
-            position: node.position,
-            children: node.children || [],
-            createdAt: node.createdAt,
-            updatedAt: node.updatedAt,
-          })),
+          path: path.map(serializePage),
         },
       } as ApiResponse);
     } catch (error) {

@@ -15,6 +15,10 @@ export interface Page {
   parentId?: string; // null/undefined for root nodes (spaces)
   position: number; // Order within parent
   children?: string[]; // Array of child node IDs
+  // End-to-end encryption fields
+  isEncrypted?: boolean; // Whether the content is encrypted
+  encryptedContent?: EncryptedBlob; // Encrypted content data (when isEncrypted is true)
+  encryptedTitle?: EncryptedBlob; // Encrypted title data (when isEncrypted is true)
 }
 
 export interface User {
@@ -100,6 +104,13 @@ export interface DatabaseService {
   createUser(user: Omit<User, '_id' | '_rev' | 'createdAt' | 'updatedAt'>): Promise<User>;
   getUserByEmail(email: string): Promise<User | null>;
   getUserById(id: string): Promise<User | null>;
+  // Public key registry operations (optional for collaboration)
+  storeUserPublicKey(
+    keyData: Omit<UserPublicKey, '_id' | '_rev' | 'createdAt' | 'updatedAt'>
+  ): Promise<UserPublicKey>;
+  getUserPublicKey(userId: string): Promise<UserPublicKey | null>;
+  updateUserPublicKey(userId: string, updates: Partial<UserPublicKey>): Promise<UserPublicKey>;
+  deleteUserPublicKey(userId: string): Promise<boolean>;
 }
 
 export interface AuthService {
@@ -125,4 +136,23 @@ export interface ApiResponse<T = any> {
   data?: T;
   error?: string;
   message?: string;
+}
+
+// End-to-end encryption types
+export interface EncryptedBlob {
+  algorithm: string; // e.g., "RSA-OAEP+AES-256-GCM"
+  data: string; // Base64 encoded encrypted data (whatever the client sends)
+  keyHint?: string; // Optional hint about which key was used
+  version: number; // Version of encryption format for future compatibility
+}
+
+export interface UserPublicKey {
+  _id: string;
+  _rev?: string;
+  userId: string;
+  publicKey: string; // User's public key (client-defined format)
+  keyId: string; // Client-defined unique identifier for the key
+  algorithm: string; // Encryption algorithm this key supports
+  createdAt: Date;
+  updatedAt: Date;
 }

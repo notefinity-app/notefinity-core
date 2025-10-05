@@ -1,10 +1,11 @@
 import nano from 'nano';
-import { DatabaseService as IDatabaseService, Page, User } from '../types';
+import { DatabaseService as IDatabaseService, Page, User, UserPublicKey } from '../types';
 
 export class DatabaseService implements IDatabaseService {
   private db: nano.ServerScope;
   private pagesDb!: nano.DocumentScope<Page>;
   private usersDb!: nano.DocumentScope<User>;
+  private keystoreDb!: nano.DocumentScope<UserPublicKey>;
 
   constructor() {
     const couchDbUrl = process.env.COUCHDB_URL || 'http://admin:password@localhost:5984';
@@ -16,10 +17,12 @@ export class DatabaseService implements IDatabaseService {
       // Create databases if they don't exist
       await this.createDatabaseIfNotExists('notefinity_pages');
       await this.createDatabaseIfNotExists('notefinity_users');
+      await this.createDatabaseIfNotExists('notefinity_keystores');
 
       // Get database references
       this.pagesDb = this.db.db.use<Page>('notefinity_pages');
       this.usersDb = this.db.db.use<User>('notefinity_users');
+      this.keystoreDb = this.db.db.use<UserPublicKey>('notefinity_keystores');
 
       // Create indexes for better performance
       await this.createIndexes();
@@ -77,6 +80,22 @@ export class DatabaseService implements IDatabaseService {
           fields: ['email'],
         },
         name: 'by-email',
+      });
+
+      // Index for keystores by userId
+      await this.keystoreDb.createIndex({
+        index: {
+          fields: ['userId'],
+        },
+        name: 'by-userId',
+      });
+
+      // Index for keystores by keyId
+      await this.keystoreDb.createIndex({
+        index: {
+          fields: ['keyId'],
+        },
+        name: 'by-keyId',
       });
     } catch (error) {
       console.warn('Failed to create some indexes:', error);
@@ -338,6 +357,88 @@ export class DatabaseService implements IDatabaseService {
         return null;
       }
       throw error;
+    }
+  }
+
+  async storeUserPublicKey(
+    keystoreData: Omit<UserPublicKey, '_id' | '_rev' | 'createdAt' | 'updatedAt'>
+  ): Promise<UserPublicKey> {
+    const now = new Date();
+    const keystore: UserPublicKey = {
+      _id: `keystore_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      ...keystoreData,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    const response = await this.keystoreDb.insert(keystore);
+    return {
+      ...keystore,
+      _id: response.id,
+      _rev: response.rev,
+    };
+  }
+
+  async getUserPublicKey(userId: string): Promise<UserPublicKey | null> {
+    try {
+      const response = await this.keystoreDb.find({
+        selector: {
+          userId: userId,
+        },
+        limit: 1,
+        sort: [{ createdAt: 'desc' }], // Get the most recent key
+      });
+
+      return response.docs.length > 0 ? response.docs[0] : null;
+    } catch (error) {
+      console.error('Failed to get user public key:', error);
+      return null;
+    }
+  }
+
+  async updateUserPublicKey(
+    userId: string,
+    updates: Partial<UserPublicKey>
+  ): Promise<UserPublicKey> {
+    try {
+      const existingKeystore = await this.getUserPublicKey(userId);
+      if (!existingKeystore) {
+        throw new Error('User keystore not found');
+      }
+
+      const updatedKeystore: UserPublicKey = {
+        ...existingKeystore,
+        ...updates,
+        _id: existingKeystore._id,
+        _rev: existingKeystore._rev,
+        userId: existingKeystore.userId, // Prevent userId from being changed
+        createdAt: existingKeystore.createdAt,
+        updatedAt: new Date(),
+      };
+
+      const response = await this.keystoreDb.insert(updatedKeystore);
+      return {
+        ...updatedKeystore,
+        _rev: response.rev,
+      };
+    } catch (error) {
+      console.error('Failed to update user public key:', error);
+      throw error;
+    }
+  }
+
+  async deleteUserPublicKey(userId: string): Promise<boolean> {
+    try {
+      const keystore = await this.getUserPublicKey(userId);
+      if (!keystore) {
+        return false;
+      }
+
+      await this.keystoreDb.destroy(keystore._id, keystore._rev!);
+      return true;
+    } catch (error) {
+      console.error('Failed to delete user public key:', error);
+      return false;
     }
   }
 }

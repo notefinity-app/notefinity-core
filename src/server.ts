@@ -4,6 +4,7 @@ import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import { authMiddleware } from './middleware/auth';
 import { authRoutes } from './routes/auth';
+import { publicKeyRoutes } from './routes/encryption';
 import { pagesRoutes } from './routes/pages';
 import { syncRoutes } from './routes/sync';
 import { AuthService } from './services/auth-service';
@@ -89,6 +90,11 @@ export class NotefinityServer {
       '/api/sync',
       authMiddleware(this.authService),
       syncRoutes(this.databaseService, this.logger)
+    );
+    this.app.use(
+      '/api/keys',
+      authMiddleware(this.authService),
+      publicKeyRoutes(this.databaseService, this.logger)
     );
 
     // Plugin routes will be added here by the plugin manager

@@ -124,6 +124,13 @@ npm run test:coverage
 - `GET /api/sync/changes` - CouchDB-style changes feed
 - `GET /api/sync/info` - Database information
 
+### End-to-End Encryption (Optional Collaboration)
+
+- `POST /api/keys/store-public-key` - Store user's public key
+- `GET /api/keys/public-key/:userId` - Get another user's public key
+- `GET /api/keys/my-public-key` - Get own public key info
+- `DELETE /api/keys/my-public-key` - Delete public key
+
 ### System
 
 - `GET /health` - Health check endpoint
@@ -183,6 +190,24 @@ POST /api/pages
   "position": 0
 }
 
+// Create an encrypted page (client encrypts before sending)
+POST /api/pages
+{
+  "title": "",
+  "content": "",
+  "isEncrypted": true,
+  "encryptedTitle": {
+    "algorithm": "RSA-OAEP+AES-256-GCM",
+    "data": "base64-encrypted-title",
+    "version": 1
+  },
+  "encryptedContent": {
+    "algorithm": "RSA-OAEP+AES-256-GCM",
+    "data": "base64-encrypted-content",
+    "version": 1
+  }
+}
+
 // Move a node to a different parent
 PATCH /api/pages/node-id/move
 {
@@ -192,6 +217,14 @@ PATCH /api/pages/node-id/move
 ```
 
 ## 🔒 Privacy & Security Features
+
+### End-to-End Encryption (E2E)
+
+- **Client-side encryption only** - Server cannot decrypt user data
+- **User-controlled keys** - Private keys stored in password managers
+- **Transparent server** - Only encrypted blobs stored server-side
+- **Optional collaboration** - Public key registry for sharing
+- See [E2E_ENCRYPTION.md](E2E_ENCRYPTION.md) for full details
 
 ### Data Isolation
 

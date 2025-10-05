@@ -15,5 +15,6 @@ export { authMiddleware } from './middleware/auth';
 
 // Routes
 export { authRoutes } from './routes/auth';
+export { publicKeyRoutes } from './routes/encryption';
 export { pagesRoutes } from './routes/pages';
 export { syncRoutes } from './routes/sync';
