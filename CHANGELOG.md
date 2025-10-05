@@ -5,6 +5,33 @@ All notable changes to the Notefinity Core project will be documented in this fi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2] - 2025-10-05
+
+### Added
+
+- **Hierarchical Note Organization**: Complete tree structure support for notes
+  - Three node types: Spaces (root), Folders (containers), and Pages (content)
+  - Parent-child relationships with position ordering
+  - Recursive deletion for folders with child cleanup
+  - Tree navigation with path resolution
+- **Enhanced API Endpoints**:
+  - `GET /api/notes/spaces` - Get all spaces for user
+  - `GET /api/notes/:id/children` - Get child nodes
+  - `PATCH /api/notes/:id/move` - Move nodes between parents
+  - `GET /api/notes/:id/path` - Get node path from root
+- **Database Improvements**:
+  - New indexes for efficient tree queries
+  - Enhanced CouchDB selectors for parent-child relationships
+  - Optimized position management within containers
+- **Security Enhancement**: Updated `generateId()` to use `crypto.randomUUID()` for cryptographically secure IDs
+- **Comprehensive Testing**: Added 7 new tests for tree structure operations (20 total tests)
+
+### Changed
+
+- Enhanced `Note` interface with tree structure fields (`type`, `parentId`, `position`, `children`)
+- Updated all API responses to include tree structure metadata
+- Improved validation schemas for node creation and updates
+
 ## [1.0.1] - 2025-10-05
 
 ### Changed

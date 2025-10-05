@@ -55,6 +55,22 @@ export class DatabaseService implements IDatabaseService {
         name: 'by-user-id',
       });
 
+      // Index for spaces (root nodes)
+      await this.notesDb.createIndex({
+        index: {
+          fields: ['userId', 'type', 'parentId'],
+        },
+        name: 'by-user-type-parent',
+      });
+
+      // Index for child nodes
+      await this.notesDb.createIndex({
+        index: {
+          fields: ['userId', 'parentId', 'position'],
+        },
+        name: 'by-user-parent-position',
+      });
+
       // Index for users by email
       await this.usersDb.createIndex({
         index: {
@@ -155,11 +171,126 @@ export class DatabaseService implements IDatabaseService {
         return false;
       }
 
+      // If deleting a folder, also delete all children recursively
+      if (note.type === 'folder' && note.children && note.children.length > 0) {
+        for (const childId of note.children) {
+          await this.deleteNote(childId, userId);
+        }
+      }
+
+      // Remove this node from parent's children array
+      if (note.parentId) {
+        const parent = await this.getNoteById(note.parentId, userId);
+        if (parent && parent.children) {
+          parent.children = parent.children.filter(childId => childId !== note._id);
+          await this.updateNote(parent._id, userId, { children: parent.children });
+        }
+      }
+
       await this.notesDb.destroy(note._id, note._rev!);
       return true;
     } catch (error) {
       console.error('Failed to delete note:', error);
       return false;
+    }
+  }
+
+  async getSpacesByUser(userId: string): Promise<Note[]> {
+    try {
+      const response = await this.notesDb.find({
+        selector: {
+          userId: userId,
+          type: 'space',
+          $or: [{ parentId: { $exists: false } }, { parentId: null }],
+        },
+        sort: [{ position: 'asc' }],
+      });
+
+      return response.docs;
+    } catch (error) {
+      console.error('Failed to get spaces by user:', error);
+      return [];
+    }
+  }
+
+  async getChildNodes(parentId: string, userId: string): Promise<Note[]> {
+    try {
+      const response = await this.notesDb.find({
+        selector: {
+          userId: userId,
+          parentId: parentId,
+        },
+        sort: [{ position: 'asc' }],
+      });
+
+      return response.docs;
+    } catch (error) {
+      console.error('Failed to get child nodes:', error);
+      return [];
+    }
+  }
+
+  async moveNode(
+    nodeId: string,
+    newParentId: string | undefined,
+    newPosition: number,
+    userId: string
+  ): Promise<Note> {
+    try {
+      const node = await this.getNoteById(nodeId, userId);
+      if (!node) {
+        throw new Error('Node not found or access denied');
+      }
+
+      // Remove from old parent's children
+      if (node.parentId) {
+        const oldParent = await this.getNoteById(node.parentId, userId);
+        if (oldParent && oldParent.children) {
+          oldParent.children = oldParent.children.filter(childId => childId !== nodeId);
+          await this.updateNote(oldParent._id, userId, { children: oldParent.children });
+        }
+      }
+
+      // Add to new parent's children
+      if (newParentId) {
+        const newParent = await this.getNoteById(newParentId, userId);
+        if (!newParent) {
+          throw new Error('New parent not found or access denied');
+        }
+
+        const children = newParent.children || [];
+        children.splice(newPosition, 0, nodeId);
+        await this.updateNote(newParent._id, userId, { children });
+      }
+
+      // Update the node itself
+      return await this.updateNote(nodeId, userId, {
+        parentId: newParentId,
+        position: newPosition,
+      });
+    } catch (error) {
+      console.error('Failed to move node:', error);
+      throw error;
+    }
+  }
+
+  async getNodePath(nodeId: string, userId: string): Promise<Note[]> {
+    try {
+      const path: Note[] = [];
+      let currentNode = await this.getNoteById(nodeId, userId);
+
+      while (currentNode) {
+        path.unshift(currentNode);
+        if (!currentNode.parentId) {
+          break;
+        }
+        currentNode = await this.getNoteById(currentNode.parentId, userId);
+      }
+
+      return path;
+    } catch (error) {
+      console.error('Failed to get node path:', error);
+      return [];
     }
   }
 

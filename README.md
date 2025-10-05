@@ -91,6 +91,13 @@ npm run test:coverage
 - `PUT /api/notes/:id` - Update note
 - `DELETE /api/notes/:id` - Delete note
 
+### Tree Structure (Hierarchical Organization)
+
+- `GET /api/notes/spaces` - Get all spaces (root nodes) for user
+- `GET /api/notes/:id/children` - Get child nodes of a parent
+- `PATCH /api/notes/:id/move` - Move node to new parent/position
+- `GET /api/notes/:id/path` - Get path from root to specific node
+
 ### Synchronization
 
 - `GET /api/sync/data` - Get sync data
@@ -101,6 +108,69 @@ npm run test:coverage
 ### System
 
 - `GET /health` - Health check endpoint
+
+## 🌳 Hierarchical Note Organization
+
+Notefinity supports organizing notes in a tree structure with three types of nodes:
+
+### Node Types
+
+- **Spaces**: Root-level containers that organize your entire workspace
+- **Folders**: Intermediate containers that can hold other folders and pages
+- **Pages**: Individual notes that contain your actual content
+
+### Structure Example
+
+```
+📁 My Workspace (Space)
+├── 📁 Projects (Folder)
+│   ├── 📁 Web Development (Folder)
+│   │   ├── 📄 React Best Practices (Page)
+│   │   └── 📄 TypeScript Guide (Page)
+│   └── 📄 Project Ideas (Page)
+└── 📁 Personal (Folder)
+    ├── 📄 Daily Journal (Page)
+    └── 📄 Reading List (Page)
+```
+
+### API Usage Examples
+
+```javascript
+// Create a space
+POST /api/notes
+{
+  "title": "My Workspace",
+  "content": "",
+  "type": "space"
+}
+
+// Create a folder in a space
+POST /api/notes
+{
+  "title": "Projects",
+  "content": "",
+  "type": "folder",
+  "parentId": "space-id-here",
+  "position": 0
+}
+
+// Create a page in a folder
+POST /api/notes
+{
+  "title": "React Best Practices",
+  "content": "# React Best Practices\n\n...",
+  "type": "page",
+  "parentId": "folder-id-here",
+  "position": 0
+}
+
+// Move a node to a different parent
+PATCH /api/notes/node-id/move
+{
+  "parentId": "new-parent-id",
+  "position": 1
+}
+```
 
 ## 🔒 Privacy & Security Features
 

@@ -1,4 +1,6 @@
 // Core types and interfaces for Notefinity
+export type NodeType = 'space' | 'folder' | 'page';
+
 export interface Note {
   _id: string;
   _rev?: string;
@@ -8,6 +10,11 @@ export interface Note {
   updatedAt: Date;
   tags?: string[];
   userId: string;
+  // Tree structure fields
+  type: NodeType;
+  parentId?: string; // null/undefined for root nodes (spaces)
+  position: number; // Order within parent
+  children?: string[]; // Array of child node IDs
 }
 
 export interface User {
@@ -79,6 +86,17 @@ export interface DatabaseService {
   getNotesByUser(userId: string): Promise<Note[]>;
   updateNote(id: string, userId: string, updates: Partial<Note>): Promise<Note>;
   deleteNote(id: string, userId: string): Promise<boolean>;
+  // Tree operations
+  getSpacesByUser(userId: string): Promise<Note[]>;
+  getChildNodes(parentId: string, userId: string): Promise<Note[]>;
+  moveNode(
+    nodeId: string,
+    newParentId: string | undefined,
+    newPosition: number,
+    userId: string
+  ): Promise<Note>;
+  getNodePath(nodeId: string, userId: string): Promise<Note[]>;
+  // User operations
   createUser(user: Omit<User, '_id' | '_rev' | 'createdAt' | 'updatedAt'>): Promise<User>;
   getUserByEmail(email: string): Promise<User | null>;
   getUserById(id: string): Promise<User | null>;
