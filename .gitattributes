@@ -1,0 +1,28 @@
+# Ensure consistent line endings across platforms
+* text=auto eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.tar.gz binary
+
+# Force specific files to be treated as text
+*.md text
+*.json text
+*.js text
+*.ts text
+*.yml text
+*.yaml text
+*.xml text
+*.html text
+*.css text
+*.sh text eol=lf
+
+# NPM lock files should use LF
+package-lock.json text eol=lf
+yarn.lock text eol=lf

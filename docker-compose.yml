@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  couchdb:
+    image: couchdb:3.3
+    container_name: notefinity-couchdb
+    restart: unless-stopped
+    ports:
+      - "5984:5984"
+    environment:
+      - COUCHDB_USER=admin
+      - COUCHDB_PASSWORD=password
+    volumes:
+      - couchdb_data:/opt/couchdb/data
+      - couchdb_config:/opt/couchdb/etc/local.d
+    networks:
+      - notefinity-network
+
+  # Optional: CouchDB admin interface (Fauxton)
+  # Access at http://localhost:5984/_utils
+
+volumes:
+  couchdb_data:
+  couchdb_config:
+
+networks:
+  notefinity-network:
+    driver: bridge

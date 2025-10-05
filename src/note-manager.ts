@@ -1,4 +1,4 @@
-import { Note, Logger } from './types';
+import { Logger, Note } from './types';
 import { ConsoleLogger, generateId } from './utils';
 
 export class NoteManager {
@@ -9,17 +9,18 @@ export class NoteManager {
     this.logger = logger || new ConsoleLogger();
   }
 
-  createNote(title: string, content: string): Note {
+  createNote(title: string, content: string, userId: string): Note {
     const note: Note = {
-      id: generateId(),
+      _id: generateId(),
       title,
       content,
       createdAt: new Date(),
       updatedAt: new Date(),
       tags: [],
+      userId,
     };
 
-    this.notes.set(note.id, note);
+    this.notes.set(note._id, note);
     this.logger.log('info', `Created note: ${note.title}`);
     return note;
   }
@@ -61,5 +62,9 @@ export class NoteManager {
       this.logger.log('warn', `Note not found for deletion: ${id}`);
     }
     return deleted;
+  }
+
+  getNotesByUserId(userId: string): Note[] {
+    return Array.from(this.notes.values()).filter(note => note.userId === userId);
   }
 }

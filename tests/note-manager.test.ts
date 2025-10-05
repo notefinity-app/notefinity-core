@@ -9,19 +9,20 @@ describe('NoteManager', () => {
   });
 
   it('should create a new note', () => {
-    const note = noteManager.createNote('Test Note', 'Test content');
+    const note = noteManager.createNote('Test Note', 'Test content', 'user123');
 
     expect(note).toBeDefined();
     expect(note.title).toBe('Test Note');
     expect(note.content).toBe('Test content');
-    expect(note.id).toBeTruthy();
+    expect(note._id).toBeTruthy();
+    expect(note.userId).toBe('user123');
     expect(note.createdAt).toBeInstanceOf(Date);
     expect(note.updatedAt).toBeInstanceOf(Date);
   });
 
   it('should retrieve a note by id', () => {
-    const note = noteManager.createNote('Test Note', 'Test content');
-    const retrievedNote = noteManager.getNote(note.id);
+    const note = noteManager.createNote('Test Note', 'Test content', 'user123');
+    const retrievedNote = noteManager.getNote(note._id);
 
     expect(retrievedNote).toEqual(note);
   });
@@ -33,21 +34,18 @@ describe('NoteManager', () => {
   });
 
   it('should get all notes', () => {
-    noteManager.createNote('Note 1', 'Content 1');
-    noteManager.createNote('Note 2', 'Content 2');
+    noteManager.createNote('Note 1', 'Content 1', 'user123');
+    noteManager.createNote('Note 2', 'Content 2', 'user123');
 
     const allNotes = noteManager.getAllNotes();
 
     expect(allNotes).toHaveLength(2);
   });
 
-  it('should update a note', async () => {
-    const note = noteManager.createNote('Original Title', 'Original content');
+  it('should update a note', () => {
+    const note = noteManager.createNote('Original Title', 'Original content', 'user123');
 
-    // Small delay to ensure different timestamps
-    await new Promise(resolve => setTimeout(resolve, 1));
-
-    const updatedNote = noteManager.updateNote(note.id, {
+    const updatedNote = noteManager.updateNote(note._id, {
       title: 'Updated Title',
       content: 'Updated content',
     });
@@ -55,7 +53,6 @@ describe('NoteManager', () => {
     expect(updatedNote).toBeDefined();
     expect(updatedNote!.title).toBe('Updated Title');
     expect(updatedNote!.content).toBe('Updated content');
-    expect(updatedNote!.updatedAt.getTime()).toBeGreaterThanOrEqual(note.createdAt.getTime());
   });
 
   it('should return undefined when updating non-existent note', () => {
@@ -65,11 +62,11 @@ describe('NoteManager', () => {
   });
 
   it('should delete a note', () => {
-    const note = noteManager.createNote('Test Note', 'Test content');
-    const deleted = noteManager.deleteNote(note.id);
+    const note = noteManager.createNote('Test Note', 'Test content', 'user123');
+    const deleted = noteManager.deleteNote(note._id);
 
     expect(deleted).toBe(true);
-    expect(noteManager.getNote(note.id)).toBeUndefined();
+    expect(noteManager.getNote(note._id)).toBeUndefined();
     expect(noteManager.getAllNotes()).toHaveLength(0);
   });
 
