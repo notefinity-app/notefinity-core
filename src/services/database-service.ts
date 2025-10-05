@@ -1,9 +1,9 @@
 import nano from 'nano';
-import { DatabaseService as IDatabaseService, Note, User } from '../types';
+import { DatabaseService as IDatabaseService, Page, User } from '../types';
 
 export class DatabaseService implements IDatabaseService {
   private db: nano.ServerScope;
-  private notesDb!: nano.DocumentScope<Note>;
+  private pagesDb!: nano.DocumentScope<Page>;
   private usersDb!: nano.DocumentScope<User>;
 
   constructor() {
@@ -14,11 +14,11 @@ export class DatabaseService implements IDatabaseService {
   async initialize(): Promise<void> {
     try {
       // Create databases if they don't exist
-      await this.createDatabaseIfNotExists('notefinity_notes');
+      await this.createDatabaseIfNotExists('notefinity_pages');
       await this.createDatabaseIfNotExists('notefinity_users');
 
       // Get database references
-      this.notesDb = this.db.db.use<Note>('notefinity_notes');
+      this.pagesDb = this.db.db.use<Page>('notefinity_pages');
       this.usersDb = this.db.db.use<User>('notefinity_users');
 
       // Create indexes for better performance
@@ -47,28 +47,28 @@ export class DatabaseService implements IDatabaseService {
 
   private async createIndexes(): Promise<void> {
     try {
-      // Index for notes by userId
-      await this.notesDb.createIndex({
+      // Index for pages by userId
+      await this.pagesDb.createIndex({
         index: {
           fields: ['userId'],
         },
-        name: 'by-user-id',
+        name: 'user-index',
       });
 
-      // Index for spaces (root nodes)
-      await this.notesDb.createIndex({
+      // Index for pages by updatedAt (for sync)
+      await this.pagesDb.createIndex({
         index: {
-          fields: ['userId', 'type', 'parentId'],
+          fields: ['updatedAt'],
         },
-        name: 'by-user-type-parent',
+        name: 'updated-index',
       });
 
-      // Index for child nodes
-      await this.notesDb.createIndex({
+      // Index for pages by type (spaces, folders, pages)
+      await this.pagesDb.createIndex({
         index: {
-          fields: ['userId', 'parentId', 'position'],
+          fields: ['type'],
         },
-        name: 'by-user-parent-position',
+        name: 'type-index',
       });
 
       // Index for users by email
@@ -83,35 +83,35 @@ export class DatabaseService implements IDatabaseService {
     }
   }
 
-  async createNote(
-    noteData: Omit<Note, '_id' | '_rev' | 'createdAt' | 'updatedAt'>
-  ): Promise<Note> {
+  async createPage(
+    pageData: Omit<Page, '_id' | '_rev' | 'createdAt' | 'updatedAt'>
+  ): Promise<Page> {
     const now = new Date();
-    const note: Note = {
-      _id: `note_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      ...noteData,
+    const page: Page = {
+      _id: `page_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      ...pageData,
       createdAt: now,
       updatedAt: now,
     };
 
-    const response = await this.notesDb.insert(note);
+    const response = await this.pagesDb.insert(page);
     return {
-      ...note,
+      ...page,
       _id: response.id,
       _rev: response.rev,
     };
   }
 
-  async getNoteById(id: string, userId: string): Promise<Note | null> {
+  async getPageById(id: string, userId: string): Promise<Page | null> {
     try {
-      const note = await this.notesDb.get(id);
+      const page = await this.pagesDb.get(id);
 
-      // Ensure user can only access their own notes
-      if (note.userId !== userId) {
+      // Ensure user can only access their own pages
+      if (page.userId !== userId) {
         return null;
       }
 
-      return note;
+      return page;
     } catch (error: any) {
       if (error.statusCode === 404) {
         return null;
@@ -120,9 +120,9 @@ export class DatabaseService implements IDatabaseService {
     }
   }
 
-  async getNotesByUser(userId: string): Promise<Note[]> {
+  async getPagesByUser(userId: string): Promise<Page[]> {
     try {
-      const response = await this.notesDb.find({
+      const response = await this.pagesDb.find({
         selector: {
           userId: userId,
         },
@@ -131,73 +131,73 @@ export class DatabaseService implements IDatabaseService {
 
       return response.docs;
     } catch (error) {
-      console.error('Failed to get notes by user:', error);
+      console.error('Failed to get pages by user:', error);
       return [];
     }
   }
 
-  async updateNote(id: string, userId: string, updates: Partial<Note>): Promise<Note> {
+  async updatePage(id: string, userId: string, updates: Partial<Page>): Promise<Page> {
     try {
-      const existingNote = await this.getNoteById(id, userId);
-      if (!existingNote) {
-        throw new Error('Note not found or access denied');
+      const existingPage = await this.getPageById(id, userId);
+      if (!existingPage) {
+        throw new Error('Page not found or access denied');
       }
 
-      const updatedNote: Note = {
-        ...existingNote,
+      const updatedPage: Page = {
+        ...existingPage,
         ...updates,
-        _id: existingNote._id,
-        _rev: existingNote._rev,
-        userId: existingNote.userId, // Prevent userId from being changed
-        createdAt: existingNote.createdAt,
+        _id: existingPage._id,
+        _rev: existingPage._rev,
+        userId: existingPage.userId, // Prevent userId from being changed
+        createdAt: existingPage.createdAt,
         updatedAt: new Date(),
       };
 
-      const response = await this.notesDb.insert(updatedNote);
+      const response = await this.pagesDb.insert(updatedPage);
       return {
-        ...updatedNote,
+        ...updatedPage,
         _rev: response.rev,
       };
     } catch (error) {
-      console.error('Failed to update note:', error);
+      console.error('Failed to update page:', error);
       throw error;
     }
   }
 
-  async deleteNote(id: string, userId: string): Promise<boolean> {
+  async deletePage(id: string, userId: string): Promise<boolean> {
     try {
-      const note = await this.getNoteById(id, userId);
-      if (!note) {
+      const page = await this.getPageById(id, userId);
+      if (!page) {
         return false;
       }
 
       // If deleting a folder, also delete all children recursively
-      if (note.type === 'folder' && note.children && note.children.length > 0) {
-        for (const childId of note.children) {
-          await this.deleteNote(childId, userId);
+      if (page.type === 'folder' && page.children && page.children.length > 0) {
+        for (const childId of page.children) {
+          await this.deletePage(childId, userId);
         }
       }
 
       // Remove this node from parent's children array
-      if (note.parentId) {
-        const parent = await this.getNoteById(note.parentId, userId);
+      if (page.parentId) {
+        const parent = await this.getPageById(page.parentId, userId);
         if (parent && parent.children) {
-          parent.children = parent.children.filter(childId => childId !== note._id);
-          await this.updateNote(parent._id, userId, { children: parent.children });
+          parent.children = parent.children.filter(childId => childId !== page._id);
+          await this.updatePage(parent._id, userId, { children: parent.children });
         }
       }
 
-      await this.notesDb.destroy(note._id, note._rev!);
+      await this.pagesDb.destroy(page._id, page._rev!);
       return true;
     } catch (error) {
-      console.error('Failed to delete note:', error);
+      console.error('Failed to delete page:', error);
       return false;
     }
   }
 
-  async getSpacesByUser(userId: string): Promise<Note[]> {
+  async getSpacesByUser(userId: string): Promise<Page[]> {
     try {
-      const response = await this.notesDb.find({
+      const response = await this.pagesDb.find({
         selector: {
           userId: userId,
           type: 'space',
@@ -213,9 +213,9 @@ export class DatabaseService implements IDatabaseService {
     }
   }
 
-  async getChildNodes(parentId: string, userId: string): Promise<Note[]> {
+  async getChildNodes(parentId: string, userId: string): Promise<Page[]> {
     try {
-      const response = await this.notesDb.find({
+      const response = await this.pagesDb.find({
         selector: {
           userId: userId,
           parentId: parentId,
@@ -235,36 +235,36 @@ export class DatabaseService implements IDatabaseService {
     newParentId: string | undefined,
     newPosition: number,
     userId: string
-  ): Promise<Note> {
+  ): Promise<Page> {
     try {
-      const node = await this.getNoteById(nodeId, userId);
+      const node = await this.getPageById(nodeId, userId);
       if (!node) {
         throw new Error('Node not found or access denied');
       }
 
       // Remove from old parent's children
       if (node.parentId) {
-        const oldParent = await this.getNoteById(node.parentId, userId);
+        const oldParent = await this.getPageById(node.parentId, userId);
         if (oldParent && oldParent.children) {
           oldParent.children = oldParent.children.filter(childId => childId !== nodeId);
-          await this.updateNote(oldParent._id, userId, { children: oldParent.children });
+          await this.updatePage(oldParent._id, userId, { children: oldParent.children });
         }
       }
 
       // Add to new parent's children
       if (newParentId) {
-        const newParent = await this.getNoteById(newParentId, userId);
+        const newParent = await this.getPageById(newParentId, userId);
         if (!newParent) {
           throw new Error('New parent not found or access denied');
         }
 
         const children = newParent.children || [];
         children.splice(newPosition, 0, nodeId);
-        await this.updateNote(newParent._id, userId, { children });
+        await this.updatePage(newParent._id, userId, { children });
       }
 
       // Update the node itself
-      return await this.updateNote(nodeId, userId, {
+      return await this.updatePage(nodeId, userId, {
         parentId: newParentId,
         position: newPosition,
       });
@@ -274,17 +274,17 @@ export class DatabaseService implements IDatabaseService {
     }
   }
 
-  async getNodePath(nodeId: string, userId: string): Promise<Note[]> {
+  async getNodePath(nodeId: string, userId: string): Promise<Page[]> {
     try {
-      const path: Note[] = [];
-      let currentNode = await this.getNoteById(nodeId, userId);
+      const path: Page[] = [];
+      let currentNode = await this.getPageById(nodeId, userId);
 
       while (currentNode) {
         path.unshift(currentNode);
         if (!currentNode.parentId) {
           break;
         }
-        currentNode = await this.getNoteById(currentNode.parentId, userId);
+        currentNode = await this.getPageById(currentNode.parentId, userId);
       }
 
       return path;

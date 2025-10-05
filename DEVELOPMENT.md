@@ -1,6 +1,14 @@
 # Notefinity Core - Development Guide
 
-This guide helps you get the Notefinity Core backend up and running for development and demonstration purposes.
+This guide helps you get the Notefinity Core backend up and running ### 3. Create a Page
+
+````bash
+curl -X POST http://localhost:3001/api/pages \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{
+    "title": "My First Page",
+    "content": "This is the content of my page",opment and demonstration purposes.
 
 ## Quick Start (5 minutes)
 
@@ -16,7 +24,7 @@ Run our setup script:
 
 ```bash
 ./setup.sh
-```
+````
 
 This will:
 
@@ -105,24 +113,24 @@ curl -X POST http://localhost:3001/api/auth/login \
 
 Save the token from the response for the next steps.
 
-### 3. Create a Note
+### 3. Create a Page
 
 ```bash
-curl -X POST http://localhost:3001/api/notes \
+curl -X POST http://localhost:3001/api/pages \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN_HERE" \
   -d '{
-    "title": "My First Note",
-    "content": "This is the content of my note",
+    "title": "My First Page",
+    "content": "This is the content of my page",
     "tags": ["personal", "test"]
   }'
 ```
 
-### 4. Get All Notes
+### 4. Get All Pages
 
 ```bash
 curl -H "Authorization: Bearer YOUR_JWT_TOKEN_HERE" \
-  http://localhost:3001/api/notes
+  http://localhost:3001/api/pages
 ```
 
 ### 5. Sync Data
@@ -258,7 +266,7 @@ curl http://admin:password@localhost:5984/notefinity_users/_all_docs?include_doc
 All operations are logged with timestamps:
 
 - User registrations and logins
-- Note operations (create, read, update, delete)
+- Page operations (create, read, update, delete)
 - Plugin loading and route registration
 - Database operations
 

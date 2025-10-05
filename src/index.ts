@@ -1,5 +1,5 @@
 // Core exports
-export * from './note-manager';
+export * from './page-manager';
 export * from './types';
 export * from './utils';
 
@@ -15,5 +15,5 @@ export { authMiddleware } from './middleware/auth';
 
 // Routes
 export { authRoutes } from './routes/auth';
-export { notesRoutes } from './routes/notes';
+export { pagesRoutes } from './routes/pages';
 export { syncRoutes } from './routes/sync';

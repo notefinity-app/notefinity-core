@@ -42,24 +42,24 @@ const plugin = {
             });
           }
 
-          // Get user's notes and perform AI search
-          const notes = await plugin.context.database.getNotesByUser(req.user.userId);
+          // Get user's pages and perform AI search
+          const pages = await plugin.context.database.getPagesByUser(req.user.userId);
 
           // Mock AI processing - in reality, this would call AI services
-          const aiResults = notes
-            .filter(note => {
-              const content = (note.title + ' ' + note.content).toLowerCase();
+          const aiResults = pages
+            .filter(page => {
+              const content = (page.title + ' ' + page.content).toLowerCase();
               return (
                 content.includes(query.toLowerCase()) ||
                 content.match(new RegExp(query.split(' ').join('|'), 'i'))
               );
             })
-            .map(note => ({
-              id: note._id,
-              title: note.title,
-              content: note.content.substring(0, 200) + '...',
-              relevanceScore: Math.random() * 0.5 + 0.5, // Mock score
-              tags: note.tags,
+            .map(page => ({
+              id: page._id,
+              title: page.title,
+              content: page.content.substring(0, 200) + '...',
+              createdAt: page.createdAt,
+              tags: page.tags,
             }));
 
           res.json({
@@ -96,18 +96,18 @@ const plugin = {
           }
 
           const { noteId } = req.params;
-          const note = await plugin.context.database.getNoteById(noteId, req.user.userId);
+          const page = await plugin.context.database.getPageById(noteId, req.user.userId);
 
-          if (!note) {
+          if (!page) {
             return res.status(404).json({
               success: false,
               error: 'Not Found',
-              message: 'Note not found',
+              message: 'Page not found',
             });
           }
 
           // Mock AI categorization
-          const content = note.title + ' ' + note.content;
+          const content = page.title + ' ' + page.content;
           const categories = [];
 
           // Simple keyword-based categorization (mock AI)
@@ -117,18 +117,18 @@ const plugin = {
           if (content.match(/personal|family|home/i)) categories.push('personal');
           if (content.match(/work|project|business/i)) categories.push('work');
 
-          // Update note with AI-suggested categories
-          const updatedNote = await plugin.context.database.updateNote(noteId, req.user.userId, {
-            tags: [...(note.tags || []), ...categories],
+          // Update page with AI-suggested categories
+          const updatedPage = await plugin.context.database.updatePage(noteId, req.user.userId, {
+            tags: [...(page.tags || []), ...categories],
           });
 
           res.json({
             success: true,
             data: {
-              note: {
-                id: updatedNote._id,
-                title: updatedNote.title,
-                tags: updatedNote.tags,
+              page: {
+                id: updatedPage._id,
+                title: updatedPage.title,
+                tags: updatedPage.tags,
               },
               suggestedCategories: categories,
             },
@@ -169,9 +169,9 @@ const plugin = {
             });
           }
 
-          const note = await plugin.context.database.getNoteById(noteId, req.user.userId);
+          const page = await plugin.context.database.getPageById(noteId, req.user.userId);
 
-          if (!note) {
+          if (!page) {
             return res.status(404).json({
               success: false,
               error: 'Not Found',
@@ -181,25 +181,25 @@ const plugin = {
           // Mock export generation
           let exportContent;
           let mimeType;
-          let filename = `${note.title.replace(/[^a-zA-Z0-9]/g, '_')}.${format}`;
+          let filename = `${page.title.replace(/[^a-zA-Z0-9]/g, '_')}.${format}`;
 
           switch (format) {
             case 'html':
               mimeType = 'text/html';
               exportContent = `
                 <html>
-                  <head><title>${note.title}</title></head>
+                  <head><title>${page.title}</title></head>
                   <body>
-                    <h1>${note.title}</h1>
-                    <div>${note.content.replace(/\n/g, '<br>')}</div>
-                    <p><small>Tags: ${(note.tags || []).join(', ')}</small></p>
+                    <h1>${page.title}</h1>
+                    <div>${page.content.replace(/\n/g, '<br>')}</div>
+                    <p><small>Tags: ${(page.tags || []).join(', ')}</small></p>
                   </body>
                 </html>
               `;
               break;
             case 'markdown':
               mimeType = 'text/markdown';
-              exportContent = `# ${note.title}\n\n${note.content}\n\n**Tags:** ${(note.tags || []).join(', ')}`;
+              exportContent = `# ${page.title}\n\n${page.content}\n\n**Tags:** ${(page.tags || []).join(', ')}`;
               break;
             default:
               // For PDF/DOCX, we'd generate binary content
@@ -240,23 +240,23 @@ const plugin = {
             });
           }
 
-          const notes = await plugin.context.database.getNotesByUser(req.user.userId);
+          const pages = await plugin.context.database.getPagesByUser(req.user.userId);
 
           // Calculate analytics
           const analytics = {
-            totalNotes: notes.length,
-            totalWords: notes.reduce((sum, note) => {
-              return sum + note.content.split(/\s+/).length;
+            totalPages: pages.length,
+            totalWords: pages.reduce((sum, page) => {
+              return sum + page.content.split(/\s+/).length;
             }, 0),
-            averageWordsPerNote: notes.length
+            averageWordsPerPage: pages.length
               ? Math.round(
-                  notes.reduce((sum, note) => sum + note.content.split(/\s+/).length, 0) /
-                    notes.length
+                  pages.reduce((sum, page) => sum + page.content.split(/\s+/).length, 0) /
+                    pages.length
                 )
               : 0,
-            mostUsedTags: this.getMostUsedTags(notes),
-            notesThisMonth: this.getNotesThisMonth(notes),
-            writingStreak: this.calculateWritingStreak(notes),
+            mostUsedTags: this.getMostUsedTags(pages),
+            pagesThisMonth: this.getPagesThisMonth(pages),
+            writingStreak: this.calculateWritingStreak(pages),
           };
 
           res.json({
@@ -277,10 +277,10 @@ const plugin = {
   ],
 
   // Helper methods
-  getMostUsedTags(notes) {
+  getMostUsedTags(pages) {
     const tagCounts = {};
-    notes.forEach(note => {
-      (note.tags || []).forEach(tag => {
+    pages.forEach(page => {
+      (page.tags || []).forEach(tag => {
         tagCounts[tag] = (tagCounts[tag] || 0) + 1;
       });
     });
@@ -291,21 +291,21 @@ const plugin = {
       .map(([tag, count]) => ({ tag, count }));
   },
 
-  getNotesThisMonth(notes) {
+  getPagesThisMonth(pages) {
     const thisMonth = new Date().getMonth();
     const thisYear = new Date().getFullYear();
 
-    return notes.filter(note => {
-      const noteDate = new Date(note.createdAt);
-      return noteDate.getMonth() === thisMonth && noteDate.getFullYear() === thisYear;
+    return pages.filter(page => {
+      const pageDate = new Date(page.createdAt);
+      return pageDate.getMonth() === thisMonth && pageDate.getFullYear() === thisYear;
     }).length;
   },
 
-  calculateWritingStreak(notes) {
-    if (notes.length === 0) return 0;
+  calculateWritingStreak(pages) {
+    if (pages.length === 0) return 0;
 
-    // Sort notes by date
-    const sortedNotes = notes.sort(
+    // Sort pages by date
+    const sortedPages = pages.sort(
       (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
 
@@ -313,14 +313,14 @@ const plugin = {
     let currentDate = new Date();
     currentDate.setHours(0, 0, 0, 0);
 
-    for (const note of sortedNotes) {
-      const noteDate = new Date(note.createdAt);
-      noteDate.setHours(0, 0, 0, 0);
+    for (const page of sortedPages) {
+      const pageDate = new Date(page.createdAt);
+      pageDate.setHours(0, 0, 0, 0);
 
-      if (noteDate.getTime() === currentDate.getTime()) {
+      if (pageDate.getTime() === currentDate.getTime()) {
         streak++;
         currentDate.setDate(currentDate.getDate() - 1);
-      } else if (noteDate.getTime() < currentDate.getTime()) {
+      } else if (pageDate.getTime() < currentDate.getTime()) {
         break;
       }
     }

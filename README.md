@@ -1,6 +1,6 @@
 # Notefinity Core (OSS)
 
-Open source core of Notefinity - A transparent, privacy-focused note-taking application.
+Open source core of Notefinity - A transparent, privacy-focused knowledge management system.
 
 ## 🎯 Transparency Promise
 
@@ -10,7 +10,26 @@ This open-source core demonstrates **exactly** what our backend does, proving we
 
 ### Express.js API Server
 
-- RESTful API with comprehensive endpoints
+- RESTful API ##### `createPage(title: string, content: string): Page`
+
+Creates a new page with the specified title and content.
+
+##### `getPage(id: string): Page | undefined`
+
+Retrieves a page by its ID.
+
+##### `getAllPages(): Page[]`
+
+Returns all pages in the manager.
+
+##### `updatePage(id: string, updates: Partial<Pick<Page, 'title' | 'content' | 'tags'>>): Page | undefined`
+
+Updates an existing page with the provided changes.
+
+##### `deletePage(id: string): boolean`
+
+Deletes a page by its ID. Returns `true` if successful, `false` if page not found.endpoints
+
 - JWT-based authentication
 - Rate limiting and security middleware
 - Structured error handling and logging
@@ -83,20 +102,20 @@ npm run test:coverage
 - `POST /api/auth/login` - User login
 - `GET /api/auth/profile` - Get user profile
 
-### Notes Management
+### Pages Management
 
-- `GET /api/notes` - Get all user notes
-- `GET /api/notes/:id` - Get specific note
-- `POST /api/notes` - Create new note
-- `PUT /api/notes/:id` - Update note
-- `DELETE /api/notes/:id` - Delete note
+- `GET /api/pages` - Get all user pages
+- `GET /api/pages/:id` - Get specific page
+- `POST /api/pages` - Create new page
+- `PUT /api/pages/:id` - Update page
+- `DELETE /api/pages/:id` - Delete page
 
 ### Tree Structure (Hierarchical Organization)
 
-- `GET /api/notes/spaces` - Get all spaces (root nodes) for user
-- `GET /api/notes/:id/children` - Get child nodes of a parent
-- `PATCH /api/notes/:id/move` - Move node to new parent/position
-- `GET /api/notes/:id/path` - Get path from root to specific node
+- `GET /api/pages/spaces` - Get all spaces (root nodes) for user
+- `GET /api/pages/:id/children` - Get child nodes of a parent
+- `PATCH /api/pages/:id/move` - Move node to new parent/position
+- `GET /api/pages/:id/path` - Get path from root to specific node
 
 ### Synchronization
 
@@ -109,15 +128,15 @@ npm run test:coverage
 
 - `GET /health` - Health check endpoint
 
-## 🌳 Hierarchical Note Organization
+## 🌳 Hierarchical Page Organization
 
-Notefinity supports organizing notes in a tree structure with three types of nodes:
+Notefinity supports organizing pages in a tree structure with three types of nodes:
 
 ### Node Types
 
 - **Spaces**: Root-level containers that organize your entire workspace
 - **Folders**: Intermediate containers that can hold other folders and pages
-- **Pages**: Individual notes that contain your actual content
+- **Pages**: Individual pages that contain your actual content
 
 ### Structure Example
 
@@ -137,7 +156,7 @@ Notefinity supports organizing notes in a tree structure with three types of nod
 
 ```javascript
 // Create a space
-POST /api/notes
+POST /api/pages
 {
   "title": "My Workspace",
   "content": "",
@@ -145,7 +164,7 @@ POST /api/notes
 }
 
 // Create a folder in a space
-POST /api/notes
+POST /api/pages
 {
   "title": "Projects",
   "content": "",
@@ -155,7 +174,7 @@ POST /api/notes
 }
 
 // Create a page in a folder
-POST /api/notes
+POST /api/pages
 {
   "title": "React Best Practices",
   "content": "# React Best Practices\n\n...",
@@ -165,7 +184,7 @@ POST /api/notes
 }
 
 // Move a node to a different parent
-PATCH /api/notes/node-id/move
+PATCH /api/pages/node-id/move
 {
   "parentId": "new-parent-id",
   "position": 1
@@ -340,11 +359,11 @@ This project is licensed under the GNU Affero General Public License v3.0 or lat
 
 ## Overview
 
-This is the open source core package of Notefinity. It provides the fundamental note management functionality that can be extended with proprietary plugins and features.
+This is the open source core package of Notefinity. It provides the fundamental page management functionality that can be extended with proprietary plugins and features.
 
 ## Features
 
-- **Note Management**: Create, read, update, and delete notes
+- **Page Management**: Create, read, update, and delete pages
 - **Type Safety**: Full TypeScript support with comprehensive type definitions
 - **Extensible Architecture**: Plugin-friendly design for adding custom functionality
 - **Logging**: Built-in logging system with configurable levels
@@ -359,32 +378,32 @@ npm install @notefinity/core
 ## Quick Start
 
 ```typescript
-import { NoteManager } from '@notefinity/core';
+import { PageManager } from '@notefinity/core';
 
-// Create a note manager instance
-const noteManager = new NoteManager();
+// Create a page manager instance
+const pageManager = new PageManager();
 
-// Create a new note
-const note = noteManager.createNote('My First Note', 'This is the content of my note.');
+// Create a new page
+const page = pageManager.createPage('My First Page', 'This is the content of my page.');
 
-// Get all notes
-const allNotes = noteManager.getAllNotes();
+// Get all pages
+const allPages = pageManager.getAllPages();
 
-// Update a note
-noteManager.updateNote(note.id, {
+// Update a page
+pageManager.updatePage(page.id, {
   title: 'Updated Title',
   content: 'Updated content',
 });
 
-// Delete a note
-noteManager.deleteNote(note.id);
+// Delete a page
+pageManager.deletePage(page.id);
 ```
 
 ## API Documentation
 
-### NoteManager
+### PageManager
 
-The main class for managing notes.
+The main class for managing pages.
 
 #### Constructor
 
@@ -396,30 +415,30 @@ constructor(logger?: Logger)
 
 #### Methods
 
-##### `createNote(title: string, content: string): Note`
+##### `createPage(title: string, content: string): Page`
 
-Creates a new note with the specified title and content.
+Creates a new page with the specified title and content.
 
-##### `getNote(id: string): Note | undefined`
+##### `getPage(id: string): Page | undefined`
 
-Retrieves a note by its ID.
+Retrieves a page by its ID.
 
-##### `getAllNotes(): Note[]`
+##### `getAllPages(): Page[]`
 
-Returns an array of all notes.
+Returns an array of all pages.
 
-##### `updateNote(id: string, updates: Partial<Pick<Note, 'title' | 'content' | 'tags'>>): Note | undefined`
+##### `updatePage(id: string, updates: Partial<Pick<Page, 'title' | 'content' | 'tags'>>): Page | undefined`
 
-Updates an existing note with the provided changes.
+Updates an existing page with the provided changes.
 
-##### `deleteNote(id: string): boolean`
+##### `deletePage(id: string): boolean`
 
-Deletes a note by its ID. Returns `true` if successful, `false` if note not found.
+Deletes a page by its ID. Returns `true` if successful, `false` if page not found.
 
 ### Types
 
 ```typescript
-interface Note {
+interface Page {
   id: string;
   title: string;
   content: string;
@@ -475,7 +494,7 @@ npm run format
 
 ```
 src/
-├── note-manager.ts    # Main NoteManager class
+├── page-manager.ts    # Main PageManager class
 ├── index.ts          # Package exports
 └── types.ts          # TypeScript type definitions
 ```
@@ -496,17 +515,17 @@ class CustomLogger implements Logger {
   }
 }
 
-const noteManager = new NoteManager(new CustomLogger());
+const pageManager = new PageManager(new CustomLogger());
 ```
 
 ### Plugin Architecture
 
-The NoteManager can be extended to support plugins:
+The PageManager can be extended to support plugins:
 
 ```typescript
-import { NoteManager, Note } from '@notefinity/core';
+import { PageManager, Page } from '@notefinity/core';
 
-class ExtendedNoteManager extends NoteManager {
+class ExtendedPageManager extends PageManager {
   private plugins: Plugin[] = [];
 
   addPlugin(plugin: Plugin): void {
@@ -514,17 +533,17 @@ class ExtendedNoteManager extends NoteManager {
   }
 
   // Override methods to call plugins
-  createNote(title: string, content: string): Note {
-    const note = super.createNote(title, content);
+  createPage(title: string, content: string): Page {
+    const page = super.createPage(title, content);
 
     // Call plugin hooks
     this.plugins.forEach(plugin => {
-      if (plugin.onNoteCreated) {
-        plugin.onNoteCreated(note);
+      if (plugin.onPageCreated) {
+        plugin.onPageCreated(page);
       }
     });
 
-    return note;
+    return page;
   }
 }
 ```

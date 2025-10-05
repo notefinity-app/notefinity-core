@@ -91,12 +91,12 @@ npm run dev
 
 ```
 src/
-├── note-manager.ts    # Main NoteManager class
-├── index.ts          # Package exports  
+├── page-manager.ts    # Main PageManager class
+├── index.ts          # Package exports
 └── types.ts          # TypeScript definitions
 
 tests/                 # Test files
-├── note-manager.test.ts
+├── page-manager.test.ts
 └── setup.ts
 
 docs/                  # Additional documentation
@@ -108,10 +108,10 @@ docs/                  # Additional documentation
 Use clear, descriptive commit messages:
 
 ```
-feat: add support for note tags
-fix: resolve memory leak in note deletion  
-docs: update API documentation for NoteManager
-test: add tests for note filtering
+feat: add support for page tags
+fix: resolve memory leak in page deletion
+docs: update API documentation
+test: add tests for page filtering
 refactor: improve error handling in createNote
 ```
 
@@ -132,6 +132,7 @@ Releases are handled by maintainers:
 ## Recognition
 
 Contributors will be recognized in:
+
 - CONTRIBUTORS.md file
 - Release notes
 - GitHub contributors graph

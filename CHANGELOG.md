@@ -9,16 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Hierarchical Note Organization**: Complete tree structure support for notes
+- **Hierarchical Page Organization**: Complete tree structure support for pages
   - Three node types: Spaces (root), Folders (containers), and Pages (content)
   - Parent-child relationships with position ordering
   - Recursive deletion for folders with child cleanup
   - Tree navigation with path resolution
 - **Enhanced API Endpoints**:
-  - `GET /api/notes/spaces` - Get all spaces for user
-  - `GET /api/notes/:id/children` - Get child nodes
-  - `PATCH /api/notes/:id/move` - Move nodes between parents
-  - `GET /api/notes/:id/path` - Get node path from root
+  - `GET /api/pages/spaces` - Get all spaces for user
+  - `GET /api/pages/:id/children` - Get child nodes
+  - `PATCH /api/pages/:id/move` - Move nodes between parents
+  - `GET /api/pages/:id/path` - Get node path from root
 - **Database Improvements**:
   - New indexes for efficient tree queries
   - Enhanced CouchDB selectors for parent-child relationships
@@ -28,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Enhanced `Note` interface with tree structure fields (`type`, `parentId`, `position`, `children`)
+- Enhanced `Page` interface with tree structure fields (`type`, `parentId`, `position`, `children`)
 - Updated all API responses to include tree structure metadata
 - Improved validation schemas for node creation and updates
 
@@ -50,7 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - JWT-based authentication system with bcrypt password hashing
 - CouchDB integration for user data isolation
 - Plugin system for extensible premium features
-- RESTful API endpoints for notes CRUD operations
+- RESTful API endpoints for pages CRUD operations
 - Synchronization endpoints for CouchDB compatibility
 - Complete user data isolation and privacy protection
 - Comprehensive test suite with 13 passing tests
@@ -72,10 +72,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `POST /api/auth/register` - User registration
 - `POST /api/auth/login` - User authentication
 - `GET /api/auth/profile` - User profile retrieval
-- `GET /api/notes` - List user notes
-- `POST /api/notes` - Create new note
-- `PUT /api/notes/:id` - Update existing note
-- `DELETE /api/notes/:id` - Delete note
+- `GET /api/pages` - List user pages
+- `POST /api/pages` - Create new page
+- `PUT /api/pages/:id` - Update existing page
+- `DELETE /api/pages/:id` - Delete page
 - `GET /api/sync/data` - Retrieve sync data
 - `POST /api/sync/bulk` - Bulk sync operations
 - `GET /api/sync/changes` - Real-time changes feed
@@ -119,6 +119,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Development Notes
 
-This release establishes the foundation for a completely transparent, privacy-focused note-taking backend. Every operation is auditable, user data is isolated by design, and premium features are added through the same transparent plugin system.
+This release establishes the foundation for a completely transparent, privacy-focused knowledge management backend. Every operation is auditable, user data is isolated by design, and premium features are added through the same transparent plugin system.
 
 The codebase serves as proof that Notefinity cannot access user data inappropriately - all operations are visible and verifiable through this open-source implementation.

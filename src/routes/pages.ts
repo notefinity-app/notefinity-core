@@ -4,7 +4,7 @@ import { DatabaseService } from '../services/database-service';
 import { Logger } from '../services/logger';
 import { ApiResponse } from '../types';
 
-const createNoteSchema = Joi.object({
+const createPageSchema = Joi.object({
   title: Joi.string().min(1).max(500).required(),
   content: Joi.string().allow('').max(1000000), // Allow empty content, max 1MB
   tags: Joi.array().items(Joi.string().max(50)).max(20), // Max 20 tags, 50 chars each
@@ -13,7 +13,7 @@ const createNoteSchema = Joi.object({
   position: Joi.number().integer().min(0).default(0),
 });
 
-const updateNoteSchema = Joi.object({
+const updatePageSchema = Joi.object({
   title: Joi.string().min(1).max(500),
   content: Joi.string().allow('').max(1000000),
   tags: Joi.array().items(Joi.string().max(50)).max(20),
@@ -21,10 +21,10 @@ const updateNoteSchema = Joi.object({
   position: Joi.number().integer().min(0),
 }).min(1); // At least one field required
 
-export function notesRoutes(databaseService: DatabaseService, logger: Logger): Router {
+export function pagesRoutes(databaseService: DatabaseService, logger: Logger): Router {
   const router = Router();
 
-  // Get all notes for the authenticated user
+  // Get all pages for the authenticated user
   router.get('/', async (req: Request, res: Response): Promise<void> => {
     try {
       if (!req.user) {
@@ -36,31 +36,31 @@ export function notesRoutes(databaseService: DatabaseService, logger: Logger): R
         return;
       }
 
-      const notes = await databaseService.getNotesByUser(req.user.userId);
+      const pages = await databaseService.getPagesByUser(req.user.userId);
 
       res.json({
         success: true,
         data: {
-          notes: notes.map(note => ({
-            id: note._id,
-            title: note.title,
-            content: note.content,
-            tags: note.tags || [],
-            type: note.type,
-            parentId: note.parentId,
-            position: note.position,
-            children: note.children || [],
-            createdAt: note.createdAt,
-            updatedAt: note.updatedAt,
+          pages: pages.map(page => ({
+            id: page._id,
+            title: page.title,
+            content: page.content,
+            tags: page.tags || [],
+            type: page.type,
+            parentId: page.parentId,
+            position: page.position,
+            children: page.children || [],
+            createdAt: page.createdAt,
+            updatedAt: page.updatedAt,
           })),
         },
       } as ApiResponse);
     } catch (error) {
-      logger.log('error', 'Get notes error:', error);
+      logger.log('error', 'Get pages error:', error);
       res.status(500).json({
         success: false,
         error: 'Internal Server Error',
-        message: 'Failed to retrieve notes',
+        message: 'Failed to retrieve pages',
       } as ApiResponse);
     }
   });
@@ -106,7 +106,7 @@ export function notesRoutes(databaseService: DatabaseService, logger: Logger): R
     }
   });
 
-  // Get a specific note
+  // Get a specific page
   router.get('/:id', async (req: Request, res: Response): Promise<void> => {
     try {
       if (!req.user) {
@@ -118,13 +118,13 @@ export function notesRoutes(databaseService: DatabaseService, logger: Logger): R
         return;
       }
 
-      const note = await databaseService.getNoteById(req.params.id, req.user.userId);
+      const page = await databaseService.getPageById(req.params.id, req.user.userId);
 
-      if (!note) {
+      if (!page) {
         res.status(404).json({
           success: false,
           error: 'Not Found',
-          message: 'Note not found',
+          message: 'Page not found',
         } as ApiResponse);
         return;
       }
@@ -132,31 +132,31 @@ export function notesRoutes(databaseService: DatabaseService, logger: Logger): R
       res.json({
         success: true,
         data: {
-          note: {
-            id: note._id,
-            title: note.title,
-            content: note.content,
-            tags: note.tags || [],
-            type: note.type,
-            parentId: note.parentId,
-            position: note.position,
-            children: note.children || [],
-            createdAt: note.createdAt,
-            updatedAt: note.updatedAt,
+          page: {
+            id: page._id,
+            title: page.title,
+            content: page.content,
+            tags: page.tags || [],
+            type: page.type,
+            parentId: page.parentId,
+            position: page.position,
+            children: page.children || [],
+            createdAt: page.createdAt,
+            updatedAt: page.updatedAt,
           },
         },
       } as ApiResponse);
     } catch (error) {
-      logger.log('error', 'Get note error:', error);
+      logger.log('error', 'Get page error:', error);
       res.status(500).json({
         success: false,
         error: 'Internal Server Error',
-        message: 'Failed to retrieve note',
+        message: 'Failed to retrieve page',
       } as ApiResponse);
     }
   });
 
-  // Create a new note
+  // Create a new page
   router.post('/', async (req: Request, res: Response): Promise<void> => {
     try {
       if (!req.user) {
@@ -169,7 +169,7 @@ export function notesRoutes(databaseService: DatabaseService, logger: Logger): R
       }
 
       // Validate input
-      const { error, value } = createNoteSchema.validate(req.body);
+      const { error, value } = createPageSchema.validate(req.body);
       if (error) {
         res.status(400).json({
           success: false,
@@ -179,44 +179,44 @@ export function notesRoutes(databaseService: DatabaseService, logger: Logger): R
         return;
       }
 
-      const noteData = {
+      const pageData = {
         ...value,
         userId: req.user.userId,
       };
 
-      const note = await databaseService.createNote(noteData);
+      const page = await databaseService.createPage(pageData);
 
-      logger.log('info', `Note created by user ${req.user.userId}: ${note._id}`);
+      logger.log('info', `Page created by user ${req.user.userId}: ${page._id}`);
 
       res.status(201).json({
         success: true,
         data: {
-          note: {
-            id: note._id,
-            title: note.title,
-            content: note.content,
-            tags: note.tags || [],
-            type: note.type,
-            parentId: note.parentId,
-            position: note.position,
-            children: note.children || [],
-            createdAt: note.createdAt,
-            updatedAt: note.updatedAt,
+          page: {
+            id: page._id,
+            title: page.title,
+            content: page.content,
+            tags: page.tags || [],
+            type: page.type,
+            parentId: page.parentId,
+            position: page.position,
+            children: page.children || [],
+            createdAt: page.createdAt,
+            updatedAt: page.updatedAt,
           },
         },
-        message: 'Note created successfully',
+        message: 'Page created successfully',
       } as ApiResponse);
     } catch (error) {
-      logger.log('error', 'Create note error:', error);
+      logger.log('error', 'Create page error:', error);
       res.status(500).json({
         success: false,
         error: 'Internal Server Error',
-        message: 'Failed to create note',
+        message: 'Failed to create page',
       } as ApiResponse);
     }
   });
 
-  // Update a note
+  // Update a page
   router.put('/:id', async (req: Request, res: Response): Promise<void> => {
     try {
       if (!req.user) {
@@ -229,7 +229,7 @@ export function notesRoutes(databaseService: DatabaseService, logger: Logger): R
       }
 
       // Validate input
-      const { error, value } = updateNoteSchema.validate(req.body);
+      const { error, value } = updatePageSchema.validate(req.body);
       if (error) {
         res.status(400).json({
           success: false,
@@ -239,48 +239,48 @@ export function notesRoutes(databaseService: DatabaseService, logger: Logger): R
         return;
       }
 
-      const updatedNote = await databaseService.updateNote(req.params.id, req.user.userId, value);
+      const updatedPage = await databaseService.updatePage(req.params.id, req.user.userId, value);
 
-      logger.log('info', `Note updated by user ${req.user.userId}: ${req.params.id}`);
+      logger.log('info', `Page updated by user ${req.user.userId}: ${req.params.id}`);
 
       res.json({
         success: true,
         data: {
-          note: {
-            id: updatedNote._id,
-            title: updatedNote.title,
-            content: updatedNote.content,
-            tags: updatedNote.tags || [],
-            type: updatedNote.type,
-            parentId: updatedNote.parentId,
-            position: updatedNote.position,
-            children: updatedNote.children || [],
-            createdAt: updatedNote.createdAt,
-            updatedAt: updatedNote.updatedAt,
+          page: {
+            id: updatedPage._id,
+            title: updatedPage.title,
+            content: updatedPage.content,
+            tags: updatedPage.tags || [],
+            type: updatedPage.type,
+            parentId: updatedPage.parentId,
+            position: updatedPage.position,
+            children: updatedPage.children || [],
+            createdAt: updatedPage.createdAt,
+            updatedAt: updatedPage.updatedAt,
           },
         },
-        message: 'Note updated successfully',
+        message: 'Page updated successfully',
       } as ApiResponse);
     } catch (error) {
-      logger.log('error', 'Update note error:', error);
+      logger.log('error', 'Update page error:', error);
 
-      if (error instanceof Error && error.message === 'Note not found or access denied') {
+      if (error instanceof Error && error.message === 'Page not found or access denied') {
         res.status(404).json({
           success: false,
           error: 'Not Found',
-          message: 'Note not found',
+          message: 'Page not found',
         } as ApiResponse);
       } else {
         res.status(500).json({
           success: false,
           error: 'Internal Server Error',
-          message: 'Failed to update note',
+          message: 'Failed to update page',
         } as ApiResponse);
       }
     }
   });
 
-  // Delete a note
+  // Delete a page
   router.delete('/:id', async (req: Request, res: Response): Promise<void> => {
     try {
       if (!req.user) {
@@ -292,29 +292,29 @@ export function notesRoutes(databaseService: DatabaseService, logger: Logger): R
         return;
       }
 
-      const deleted = await databaseService.deleteNote(req.params.id, req.user.userId);
+      const deleted = await databaseService.deletePage(req.params.id, req.user.userId);
 
       if (!deleted) {
         res.status(404).json({
           success: false,
           error: 'Not Found',
-          message: 'Note not found',
+          message: 'Page not found',
         } as ApiResponse);
         return;
       }
 
-      logger.log('info', `Note deleted by user ${req.user.userId}: ${req.params.id}`);
+      logger.log('info', `Page deleted by user ${req.user.userId}: ${req.params.id}`);
 
       res.json({
         success: true,
-        message: 'Note deleted successfully',
+        message: 'Page deleted successfully',
       } as ApiResponse);
     } catch (error) {
-      logger.log('error', 'Delete note error:', error);
+      logger.log('error', 'Delete page error:', error);
       res.status(500).json({
         success: false,
         error: 'Internal Server Error',
-        message: 'Failed to delete note',
+        message: 'Failed to delete page',
       } as ApiResponse);
     }
   });
@@ -399,7 +399,7 @@ export function notesRoutes(databaseService: DatabaseService, logger: Logger): R
       res.json({
         success: true,
         data: {
-          note: {
+          page: {
             id: movedNote._id,
             title: movedNote.title,
             content: movedNote.content,

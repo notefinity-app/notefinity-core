@@ -4,7 +4,7 @@ import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import { authMiddleware } from './middleware/auth';
 import { authRoutes } from './routes/auth';
-import { notesRoutes } from './routes/notes';
+import { pagesRoutes } from './routes/pages';
 import { syncRoutes } from './routes/sync';
 import { AuthService } from './services/auth-service';
 import { DatabaseService } from './services/database-service';
@@ -81,9 +81,9 @@ export class NotefinityServer {
     // API routes
     this.app.use('/api/auth', authRoutes(this.authService, this.databaseService, this.logger));
     this.app.use(
-      '/api/notes',
+      '/api/pages',
       authMiddleware(this.authService),
-      notesRoutes(this.databaseService, this.logger)
+      pagesRoutes(this.databaseService, this.logger)
     );
     this.app.use(
       '/api/sync',

@@ -1,22 +1,22 @@
-import { Logger, NodeType, Note } from './types';
+import { Logger, NodeType, Page } from './types';
 import { ConsoleLogger, generateId } from './utils';
 
-export class NoteManager {
-  private notes: Map<string, Note> = new Map();
+export class PageManager {
+  private pages: Map<string, Page> = new Map();
   private logger: Logger;
 
   constructor(logger?: Logger) {
     this.logger = logger || new ConsoleLogger();
   }
 
-  createNote(
+  createPage(
     title: string,
     content: string,
     userId: string,
     type: NodeType = 'page',
     parentId?: string
-  ): Note {
-    const note: Note = {
+  ): Page {
+    const page: Page = {
       _id: generateId(),
       title,
       content,
@@ -30,78 +30,78 @@ export class NoteManager {
       children: type === 'page' ? undefined : [],
     };
 
-    this.notes.set(note._id, note);
+    this.pages.set(page._id, page);
 
     // If this has a parent, add it to the parent's children
     if (parentId) {
-      const parent = this.notes.get(parentId);
+      const parent = this.pages.get(parentId);
       if (parent && parent.children) {
-        parent.children.push(note._id);
-        note.position = parent.children.length - 1;
+        parent.children.push(page._id);
+        page.position = parent.children.length - 1;
       }
     }
 
-    this.logger.log('info', `Created ${type}: ${note.title}`);
-    return note;
+    this.logger.log('info', `Created ${type}: ${page.title}`);
+    return page;
   }
 
-  getNote(id: string): Note | undefined {
-    return this.notes.get(id);
+  getPage(id: string): Page | undefined {
+    return this.pages.get(id);
   }
 
-  getAllNotes(): Note[] {
-    return Array.from(this.notes.values());
+  getAllPages(): Page[] {
+    return Array.from(this.pages.values());
   }
 
-  updateNote(
+  updatePage(
     id: string,
-    updates: Partial<Pick<Note, 'title' | 'content' | 'tags'>>
-  ): Note | undefined {
-    const note = this.notes.get(id);
-    if (!note) {
-      this.logger.log('warn', `Note not found: ${id}`);
+    updates: Partial<Pick<Page, 'title' | 'content' | 'tags'>>
+  ): Page | undefined {
+    const page = this.pages.get(id);
+    if (!page) {
+      this.logger.log('warn', `Page not found: ${id}`);
       return undefined;
     }
 
-    const updatedNote = {
-      ...note,
+    const updatedPage = {
+      ...page,
       ...updates,
       updatedAt: new Date(),
     };
 
-    this.notes.set(id, updatedNote);
-    this.logger.log('info', `Updated note: ${updatedNote.title}`);
-    return updatedNote;
+    this.pages.set(id, updatedPage);
+    this.logger.log('info', `Updated page: ${updatedPage.title}`);
+    return updatedPage;
   }
 
-  deleteNote(id: string): boolean {
-    const deleted = this.notes.delete(id);
+  deletePage(id: string): boolean {
+    const deleted = this.pages.delete(id);
     if (deleted) {
-      this.logger.log('info', `Deleted note: ${id}`);
+      this.logger.log('info', `Deleted page: ${id}`);
     } else {
-      this.logger.log('warn', `Note not found for deletion: ${id}`);
+      this.logger.log('warn', `Page not found for deletion: ${id}`);
     }
     return deleted;
   }
 
-  getNotesByUserId(userId: string): Note[] {
-    return Array.from(this.notes.values()).filter(note => note.userId === userId);
+  getPagesByUserId(userId: string): Page[] {
+    return Array.from(this.pages.values()).filter(page => page.userId === userId);
   }
 
-  getSpacesByUserId(userId: string): Note[] {
-    return Array.from(this.notes.values()).filter(
-      note => note.userId === userId && note.type === 'space' && !note.parentId
+  getSpacesByUserId(userId: string): Page[] {
+    return Array.from(this.pages.values()).filter(
+      page => page.userId === userId && page.type === 'space' && !page.parentId
     );
   }
 
-  getChildNodes(parentId: string): Note[] {
-    return Array.from(this.notes.values())
-      .filter(note => note.parentId === parentId)
+  getChildNodes(parentId: string): Page[] {
+    return Array.from(this.pages.values())
+      .filter(page => page.parentId === parentId)
       .sort((a, b) => a.position - b.position);
   }
 
   moveNode(nodeId: string, newParentId?: string, newPosition?: number): boolean {
-    const node = this.notes.get(nodeId);
+    const node = this.pages.get(nodeId);
     if (!node) {
       this.logger.log('warn', `Node not found for move: ${nodeId}`);
       return false;
@@ -109,12 +109,12 @@ export class NoteManager {
 
     // Remove from old parent's children
     if (node.parentId) {
-      const oldParent = this.notes.get(node.parentId);
+      const oldParent = this.pages.get(node.parentId);
       if (oldParent && oldParent.children) {
         oldParent.children = oldParent.children.filter(childId => childId !== nodeId);
         // Update positions of remaining children
         oldParent.children.forEach((childId, index) => {
-          const child = this.notes.get(childId);
+          const child = this.pages.get(childId);
           if (child) {
             child.position = index;
           }
@@ -127,7 +127,7 @@ export class NoteManager {
 
     // Add to new parent's children
     if (newParentId) {
-      const newParent = this.notes.get(newParentId);
+      const newParent = this.pages.get(newParentId);
       if (!newParent) {
         this.logger.log('warn', `New parent not found: ${newParentId}`);
         return false;
@@ -142,7 +142,7 @@ export class NoteManager {
 
       // Update positions of all children
       newParent.children.forEach((childId, index) => {
-        const child = this.notes.get(childId);
+        const child = this.pages.get(childId);
         if (child) {
           child.position = index;
         }
@@ -156,30 +156,30 @@ export class NoteManager {
     return true;
   }
 
-  getNodePath(nodeId: string): Note[] {
-    const path: Note[] = [];
-    let currentNode = this.notes.get(nodeId);
+  getNodePath(nodeId: string): Page[] {
+    const path: Page[] = [];
+    let currentNode = this.pages.get(nodeId);
 
     while (currentNode) {
       path.unshift(currentNode);
       if (!currentNode.parentId) {
         break;
       }
-      currentNode = this.notes.get(currentNode.parentId);
+      currentNode = this.pages.get(currentNode.parentId);
     }
 
     return path;
   }
 
-  createSpace(title: string, userId: string): Note {
-    return this.createNote(title, '', userId, 'space');
+  createSpace(title: string, userId: string): Page {
+    return this.createPage(title, '', userId, 'space');
   }
 
-  createFolder(title: string, userId: string, parentId?: string): Note {
-    return this.createNote(title, '', userId, 'folder', parentId);
+  createFolder(title: string, userId: string, parentId?: string): Page {
+    return this.createPage(title, '', userId, 'folder', parentId);
   }
 
-  createPage(title: string, content: string, userId: string, parentId?: string): Note {
-    return this.createNote(title, content, userId, 'page', parentId);
+  createPageNode(title: string, content: string, userId: string, parentId?: string): Page {
+    return this.createPage(title, content, userId, 'page', parentId);
   }
 }

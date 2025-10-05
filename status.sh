@@ -83,7 +83,7 @@ echo
 # API endpoints count
 echo "🌐 API Endpoints:"
 echo "   Auth routes: $(grep -r "router\." src/routes/auth.ts | wc -l | tr -d ' ')"  
-echo "   Notes routes: $(grep -r "router\." src/routes/notes.ts | wc -l | tr -d ' ')"
+echo "   Pages routes: $(grep -r "router\." src/routes/pages.ts | wc -l | tr -d ' ')"
 echo "   Sync routes: $(grep -r "router\." src/routes/sync.ts | wc -l | tr -d ' ')"
 echo
 

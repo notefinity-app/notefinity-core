@@ -2,7 +2,7 @@
 
 ## Project Context
 
-This is the **open-source core** of Notefinity, a privacy-focused note-taking application. The primary purpose of this codebase is to demonstrate **complete transparency** - proving that the backend cannot access user data inappropriately.
+This is the **open-source core** of Notefinity, a privacy-focused knowledge management system. The primary purpose of this codebase is to demonstrate **complete transparency** - proving that the backend cannot access user data inappropriately.
 
 **License**: AGPL v3.0-or-later - This copyleft license ensures that any modifications or services built on this code must also be open source, protecting against competitors building proprietary services on our transparent foundation.
 
@@ -30,7 +30,7 @@ src/
 ├── server.ts              # Main Express application and startup
 ├── index.ts               # Public API exports
 ├── types.ts               # TypeScript interfaces and types
-├── note-manager.ts        # In-memory note management (legacy)
+├── page-manager.ts        # In-memory page management
 ├── services/
 │   ├── auth-service.ts    # JWT authentication and password hashing
 │   ├── database-service.ts # CouchDB operations and user isolation
@@ -38,7 +38,7 @@ src/
 │   └── plugin-manager.ts  # Plugin discovery and loading
 ├── routes/
 │   ├── auth.ts           # Authentication endpoints (login/register)
-│   ├── notes.ts          # CRUD operations for notes
+│   ├── pages.ts          # CRUD operations for pages
 │   └── sync.ts           # Synchronization and CouchDB compatibility
 ├── middleware/
 │   └── auth.ts           # JWT token validation middleware
@@ -61,12 +61,12 @@ src/
 
 ```typescript
 // Always include userId validation
-async getNoteById(id: string, userId: string): Promise<Note | null> {
-  const note = await this.notesDb.get(id);
-  if (note.userId !== userId) {
-    return null; // User isolation
+async getPageById(id: string, userId: string): Promise<Page | null> {
+  const page = await this.pagesDb.get(id);
+  if (page.userId !== userId) {
+    throw new Error('Access denied');
   }
-  return note;
+  return page;
 }
 ```
 
@@ -157,19 +157,14 @@ interface User {
 }
 ```
 
-### Notes Collection (notefinity_notes)
+### Pages Collection (notefinity_pages)
 
 ```typescript
-interface Note {
-  _id: string; // CouchDB document ID
-  _rev?: string; // CouchDB revision
-  title: string; // Note title
-  content: string; // Note content (Markdown/plain text)
-  userId: string; // References User._id for isolation
-  tags?: string[]; // Optional categorization
-  createdAt: Date;
-  updatedAt: Date;
-}
+interface Page {
+  _id: string;
+  _rev?: string;
+  title: string; // Page title
+  content: string; // Page content (Markdown/plain text)
 ```
 
 ## Plugin Development

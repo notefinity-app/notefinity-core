@@ -1,7 +1,7 @@
 // Core types and interfaces for Notefinity
 export type NodeType = 'space' | 'folder' | 'page';
 
-export interface Note {
+export interface Page {
   _id: string;
   _rev?: string;
   title: string;
@@ -81,21 +81,21 @@ export interface PluginMiddleware {
 }
 
 export interface DatabaseService {
-  createNote(note: Omit<Note, '_id' | '_rev' | 'createdAt' | 'updatedAt'>): Promise<Note>;
-  getNoteById(id: string, userId: string): Promise<Note | null>;
-  getNotesByUser(userId: string): Promise<Note[]>;
-  updateNote(id: string, userId: string, updates: Partial<Note>): Promise<Note>;
-  deleteNote(id: string, userId: string): Promise<boolean>;
+  createPage(page: Omit<Page, '_id' | '_rev' | 'createdAt' | 'updatedAt'>): Promise<Page>;
+  getPageById(id: string, userId: string): Promise<Page | null>;
+  getPagesByUser(userId: string): Promise<Page[]>;
+  updatePage(id: string, userId: string, updates: Partial<Page>): Promise<Page>;
+  deletePage(id: string, userId: string): Promise<boolean>;
   // Tree operations
-  getSpacesByUser(userId: string): Promise<Note[]>;
-  getChildNodes(parentId: string, userId: string): Promise<Note[]>;
+  getSpacesByUser(userId: string): Promise<Page[]>;
+  getChildNodes(parentId: string, userId: string): Promise<Page[]>;
   moveNode(
     nodeId: string,
     newParentId: string | undefined,
     newPosition: number,
     userId: string
-  ): Promise<Note>;
-  getNodePath(nodeId: string, userId: string): Promise<Note[]>;
+  ): Promise<Page>;
+  getNodePath(nodeId: string, userId: string): Promise<Page[]>;
   // User operations
   createUser(user: Omit<User, '_id' | '_rev' | 'createdAt' | 'updatedAt'>): Promise<User>;
   getUserByEmail(email: string): Promise<User | null>;
@@ -116,7 +116,7 @@ export interface Logger {
 }
 
 export interface SyncData {
-  notes: Note[];
+  pages: Page[];
   lastSync: Date;
 }
 
