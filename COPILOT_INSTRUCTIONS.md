@@ -13,15 +13,18 @@ This is the **open-source core** of Notefinity, a privacy-focused knowledge mana
 - **Express.js API Server**: RESTful endpoints with security middleware
 - **JWT Authentication**: Stateless, secure token-based auth
 - **CouchDB Integration**: Document database for user data isolation
+- **End-to-End Encryption**: Client-side only, zero-knowledge server architecture
 - **Plugin System**: Extensible architecture for premium features
 - **Transparency Layer**: All operations are auditable and visible
 
 ### Key Design Principles
 
 1. **User Data Isolation**: Each user's data is completely separated
-2. **No Hidden Operations**: Every database query and API call is explicit
-3. **Plugin Transparency**: Premium features use the same auditable codebase
-4. **Security by Design**: Multiple layers of protection and validation
+2. **Zero-Knowledge Server**: Server cannot decrypt user data under any circumstances
+3. **Client-Side Encryption**: All encryption/decryption happens in the browser
+4. **No Hidden Operations**: Every database query and API call is explicit
+5. **Plugin Transparency**: Premium features use the same auditable codebase
+6. **Security by Design**: Multiple layers of protection and validation
 
 ## File Structure Guide
 
@@ -38,7 +41,8 @@ src/
 │   └── plugin-manager.ts  # Plugin discovery and loading
 ├── routes/
 │   ├── auth.ts           # Authentication endpoints (login/register)
-│   ├── pages.ts          # CRUD operations for pages
+│   ├── pages.ts          # CRUD operations for pages (supports encryption)
+│   ├── encryption.ts     # Public key registry for collaboration
 │   └── sync.ts           # Synchronization and CouchDB compatibility
 ├── middleware/
 │   └── auth.ts           # JWT token validation middleware
@@ -50,10 +54,12 @@ src/
 ### When Adding New Features
 
 1. **Maintain Transparency**: All operations must be auditable
-2. **User Isolation**: Always validate user access to data
-3. **Error Handling**: Comprehensive error handling with logging
-4. **Type Safety**: Use TypeScript types for all interfaces
-5. **Security**: Input validation, rate limiting, auth checks
+2. **Zero-Knowledge Principle**: Server must never handle plaintext of encrypted data
+3. **User Isolation**: Always validate user access to data
+4. **Client-Side First**: Encryption/decryption only on client side
+5. **Error Handling**: Comprehensive error handling with logging
+6. **Type Safety**: Use TypeScript types for all interfaces
+7. **Security**: Input validation, rate limiting, auth checks
 
 ### Code Patterns to Follow
 
@@ -106,10 +112,13 @@ const context: PluginContext = {
 ### Security Considerations
 
 - **Input Validation**: Use Joi schemas for all user input
+- **End-to-End Encryption**: Server only handles opaque encrypted blobs
+- **Zero-Knowledge Architecture**: No server-side decryption capability
 - **Rate Limiting**: Prevent abuse with express-rate-limit
 - **CORS**: Configure allowed origins properly
 - **JWT**: Secure token generation and validation
 - **Password Hashing**: Use bcrypt with proper salt rounds
+- **Client-Side Keys**: Private keys never transmitted to server
 
 ## API Design Patterns
 
@@ -163,8 +172,11 @@ interface User {
 interface Page {
   _id: string;
   _rev?: string;
-  title: string; // Page title
-  content: string; // Page content (Markdown/plain text)
+  title: string; // Page title (plaintext or encrypted)
+  content: string; // Page content (plaintext or encrypted blob)
+  isEncrypted?: boolean; // True if content is encrypted
+  encryptedContent?: EncryptedBlob; // Opaque encrypted data
+  encryptedTitle?: EncryptedBlob; // Encrypted title if privacy needed
 ```
 
 ## Plugin Development
@@ -263,14 +275,53 @@ All operations are logged with timestamps and context:
 - Check that plugin context provides controlled access only
 - Confirm no session storage or hidden state management
 
+## Encryption Implementation
+
+### End-to-End Encryption Architecture
+
+- **Client-Side Only**: All encryption/decryption happens in browser using Web Crypto API
+- **Zero-Knowledge Server**: Backend only stores opaque encrypted blobs
+- **User-Controlled Keys**: Private keys stored in password managers, never on server
+- **Optional Collaboration**: Public key registry enables encrypted sharing
+- **Backward Compatible**: Encrypted and unencrypted content coexist seamlessly
+
+### Key Management
+
+```typescript
+interface EncryptedBlob {
+  data: string; // Base64 encoded encrypted data
+  iv: string; // Base64 encoded initialization vector
+  salt?: string; // Optional salt for key derivation
+}
+
+interface UserPublicKey {
+  _id: string;
+  _rev?: string;
+  userId: string;
+  publicKey: string; // PEM-formatted public key
+  keyId?: string; // Optional key identifier
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+### Encryption Best Practices
+
+1. **Never Store Private Keys**: Client generates and manages all private keys
+2. **Opaque Blob Storage**: Server treats all encrypted data as black boxes
+3. **Public Key Validation**: Verify key format and ownership before storage
+4. **Mixed Content Support**: Handle both encrypted and unencrypted pages transparently
+5. **Audit Trail**: Log all encryption-related operations for transparency
+
 ## Future Development
 
 ### Planned Enhancements
 
-- Real-time collaboration features (transparent implementation)
-- Advanced search capabilities (local processing only)
-- Export/import functionality (user-controlled)
-- Enhanced plugin API (maintaining transparency)
+- Real-time collaboration features with encrypted synchronization
+- Advanced search capabilities (client-side indexing of encrypted content)
+- Export/import functionality with encryption support
+- Enhanced plugin API (maintaining zero-knowledge architecture)
+- Multi-device key synchronization via secure channels
 
 ### Maintaining Transparency
 
@@ -278,8 +329,10 @@ When adding features:
 
 1. Document all new data flows
 2. Maintain user isolation boundaries
-3. Keep plugin system auditable
-4. Ensure no hidden operations are introduced
+3. Preserve zero-knowledge architecture
+4. Keep plugin system auditable
+5. Ensure no hidden operations are introduced
+6. Never add server-side decryption capabilities
 
 ---
 

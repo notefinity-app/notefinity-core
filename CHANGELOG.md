@@ -5,6 +5,82 @@ All notable changes to the Notefinity Core project will be documented in this fi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-10-05
+
+### Added
+
+- **🔒 END-TO-END ENCRYPTION SUPPORT**: Major privacy feature implementation
+
+  - **Client-side only encryption/decryption** - Server has zero decrypt capability
+  - **User-controlled key management** - Private keys stored in password managers
+  - **Zero-knowledge server architecture** - Only encrypted blobs stored server-side
+  - **Complete data transparency** - All server operations are auditable
+  - **Optional collaboration features** - Public key registry for encrypted sharing
+  - **Mixed content support** - Encrypted and unencrypted pages can coexist
+  - **Full backward compatibility** - Existing unencrypted pages remain accessible
+
+- **New Data Structures**:
+
+  - `EncryptedBlob` interface for opaque encrypted data storage
+  - Extended `Page` interface with encryption fields (`isEncrypted`, `encryptedContent`, `encryptedTitle`)
+  - `UserPublicKey` interface for collaboration key registry
+  - Enhanced database schemas with encryption support
+
+- **Public Key Registry API** (`/api/keys/*`):
+
+  - `POST /api/keys/store-public-key` - Store user's public key for collaboration
+  - `GET /api/keys/public-key/:userId` - Retrieve another user's public key
+  - `GET /api/keys/my-public-key` - Get own public key information
+  - `DELETE /api/keys/my-public-key` - Remove public key from registry
+
+- **Enhanced Pages API**: All existing `/api/pages/*` endpoints now support encrypted content
+
+  - Automatic detection of encrypted vs unencrypted content
+  - Proper validation schemas for both content types
+  - Consistent API response serialization with encryption fields
+
+- **Database Enhancements**:
+
+  - New `notefinity_keystores` database for public key registry
+  - Enhanced indexes for encrypted data operations
+  - Keystore operations (create, read, update, delete public keys)
+  - User isolation for all keystore operations
+
+- **Comprehensive Documentation**:
+
+  - `E2E_ENCRYPTION.md` - Complete implementation and usage guide
+  - Client-side integration examples with Web Crypto API
+  - Security architecture documentation
+  - Migration strategy for existing users
+
+- **Extensive Testing**: Added 6 new encryption tests (32 total tests)
+  - Encrypted page storage and retrieval
+  - Public key registry operations
+  - Server transparency verification
+  - Mixed encrypted/unencrypted scenarios
+
+### Security
+
+- **Ultimate Privacy Assurance**: Even if Notefinity servers are compromised, user data remains secure
+- **No server-side decryption capability** - Server cannot access plaintext content under any circumstances
+- **Private key protection** - Private keys never transmitted to or stored on server
+- **Auditable operations** - All server code is transparent and verifiable
+- **Zero data leakage** - Server only handles opaque encrypted blobs
+
+### Changed
+
+- Enhanced all API response serialization to include encryption metadata when present
+- Updated validation schemas to handle encrypted content fields
+- Refactored page serialization with helper functions for consistency
+- Improved error handling for encryption-related operations
+
+### Developer Experience
+
+- Complete TypeScript type definitions for all encryption interfaces
+- Comprehensive JSDoc documentation for all new APIs
+- Client-side implementation examples and best practices
+- Migration guides for adding encryption to existing applications
+
 ## [1.0.2] - 2025-10-05
 
 ### Added
