@@ -9,3 +9,8 @@ coverage/
 .npm/
 .eslintcache
 *.tsbuildinfo
+# Temporary and diff files
+*.diff
+*.patch
+*.orig
+*.rej
