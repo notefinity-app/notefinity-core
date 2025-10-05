@@ -407,7 +407,13 @@ const space = pageManager.createPage('My Workspace', '', 'user123', 'space');
 const folder = pageManager.createPage('Documents', '', 'user123', 'folder', space._id);
 
 // Create a page in the folder
-const page = pageManager.createPage('My First Page', 'This is the content of my page.', 'user123', 'page', folder._id);
+const page = pageManager.createPage(
+  'My First Page',
+  'This is the content of my page.',
+  'user123',
+  'page',
+  folder._id
+);
 
 // Get all pages for a user
 const userPages = pageManager.getPagesByUserId('user123');
@@ -605,7 +611,13 @@ class ExtendedPageManager extends PageManager {
   }
 
   // Override methods to call plugins
-  createPage(title: string, content: string, userId: string, type?: NodeType, parentId?: string): Page {
+  createPage(
+    title: string,
+    content: string,
+    userId: string,
+    type?: NodeType,
+    parentId?: string
+  ): Page {
     const page = super.createPage(title, content, userId, type, parentId);
 
     // Call plugin hooks
