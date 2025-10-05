@@ -10,25 +10,9 @@ This open-source core demonstrates **exactly** what our backend does, proving we
 
 ### Express.js API Server
 
-- RESTful API ##### `createPage(title: string, content: string): Page`
-
-Creates a new page with the specified title and content.
-
-##### `getPage(id: string): Page | undefined`
-
-Retrieves a page by its ID.
-
-##### `getAllPages(): Page[]`
-
-Returns all pages in the manager.
-
-##### `updatePage(id: string, updates: Partial<Pick<Page, 'title' | 'content' | 'tags'>>): Page | undefined`
-
-Updates an existing page with the provided changes.
-
-##### `deletePage(id: string): boolean`
-
-Deletes a page by its ID. Returns `true` if successful, `false` if page not found.endpoints
+- RESTful API endpoints for pages, authentication, and encryption
+- Hierarchical page management with tree structure support
+- End-to-end encryption with client-side key management
 
 - JWT-based authentication
 - Rate limiting and security middleware
@@ -416,20 +400,32 @@ import { PageManager } from '@notefinity/core';
 // Create a page manager instance
 const pageManager = new PageManager();
 
-// Create a new page
-const page = pageManager.createPage('My First Page', 'This is the content of my page.');
+// Create a root space
+const space = pageManager.createPage('My Workspace', '', 'user123', 'space');
 
-// Get all pages
-const allPages = pageManager.getAllPages();
+// Create a folder in the space
+const folder = pageManager.createPage('Documents', '', 'user123', 'folder', space._id);
+
+// Create a page in the folder
+const page = pageManager.createPage('My First Page', 'This is the content of my page.', 'user123', 'page', folder._id);
+
+// Get all pages for a user
+const userPages = pageManager.getPagesByUserId('user123');
+
+// Get root spaces for a user
+const spaces = pageManager.getSpacesByUserId('user123');
+
+// Get children of a node
+const folderContents = pageManager.getChildNodes(folder._id);
 
 // Update a page
-pageManager.updatePage(page.id, {
+pageManager.updatePage(page._id, {
   title: 'Updated Title',
   content: 'Updated content',
 });
 
 // Delete a page
-pageManager.deletePage(page.id);
+pageManager.deletePage(page._id);
 ```
 
 ## API Documentation
@@ -448,9 +444,9 @@ constructor(logger?: Logger)
 
 #### Methods
 
-##### `createPage(title: string, content: string): Page`
+##### `createPage(title: string, content: string, userId: string, type?: NodeType, parentId?: string): Page`
 
-Creates a new page with the specified title and content.
+Creates a new page with hierarchical structure support. The `type` defaults to 'page', and `parentId` can be specified to create nested nodes.
 
 ##### `getPage(id: string): Page | undefined`
 
@@ -459,6 +455,18 @@ Retrieves a page by its ID.
 ##### `getAllPages(): Page[]`
 
 Returns an array of all pages.
+
+##### `getPagesByUserId(userId: string): Page[]`
+
+Returns all pages belonging to a specific user.
+
+##### `getSpacesByUserId(userId: string): Page[]`
+
+Returns root-level spaces for a user (nodes with no parent).
+
+##### `getChildNodes(parentId: string): Page[]`
+
+Returns child nodes of a parent, sorted by position.
 
 ##### `updatePage(id: string, updates: Partial<Pick<Page, 'title' | 'content' | 'tags'>>): Page | undefined`
 
@@ -471,13 +479,44 @@ Deletes a page by its ID. Returns `true` if successful, `false` if page not foun
 ### Types
 
 ```typescript
+type NodeType = 'space' | 'folder' | 'page';
+
 interface Page {
-  id: string;
+  _id: string;
+  _rev?: string; // CouchDB revision
   title: string;
   content: string;
   createdAt: Date;
   updatedAt: Date;
   tags?: string[];
+  userId: string;
+  // Hierarchical tree structure
+  type: NodeType;
+  parentId?: string; // Parent node ID (undefined for root spaces)
+  position: number; // Order within parent
+  children?: string[]; // Array of child node IDs
+  // End-to-end encryption support
+  isEncrypted?: boolean; // Whether content is encrypted
+  encryptedContent?: EncryptedBlob; // Encrypted content blob
+  encryptedTitle?: EncryptedBlob; // Encrypted title blob
+}
+
+interface EncryptedBlob {
+  algorithm: string; // e.g., "RSA-OAEP+AES-256-GCM"
+  data: string; // Base64 encoded encrypted data
+  keyHint?: string; // Optional key identifier hint
+  version: number; // Encryption format version
+}
+
+interface UserPublicKey {
+  _id: string;
+  _rev?: string;
+  userId: string;
+  publicKey: string; // User's public key
+  keyId: string; // Client-defined key identifier
+  algorithm: string; // Supported encryption algorithm
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 interface Logger {
@@ -566,8 +605,8 @@ class ExtendedPageManager extends PageManager {
   }
 
   // Override methods to call plugins
-  createPage(title: string, content: string): Page {
-    const page = super.createPage(title, content);
+  createPage(title: string, content: string, userId: string, type?: NodeType, parentId?: string): Page {
+    const page = super.createPage(title, content, userId, type, parentId);
 
     // Call plugin hooks
     this.plugins.forEach(plugin => {
