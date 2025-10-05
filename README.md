@@ -220,7 +220,7 @@ MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Related Projects
 
-- **Notefinity Extensions**: Proprietary extensions and advanced features (private repository)
+- **Notefinity Main**: Main application with advanced features (private repository)
 - **Notefinity CLI**: Command-line interface for Notefinity
 - **Notefinity Web**: Web application built on Notefinity core
 
