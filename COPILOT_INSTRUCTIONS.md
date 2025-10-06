@@ -22,9 +22,10 @@ This is the **open-source core** of Notefinity, a privacy-focused knowledge mana
 1. **User Data Isolation**: Each user's data is completely separated
 2. **Zero-Knowledge Server**: Server cannot decrypt user data under any circumstances
 3. **Client-Side Encryption**: All encryption/decryption happens in the browser
-4. **No Hidden Operations**: Every database query and API call is explicit
-5. **Plugin Transparency**: Premium features use the same auditable codebase
-6. **Security by Design**: Multiple layers of protection and validation
+4. **Hierarchical Organization**: Tree-structured content (spaces → folders → pages)
+5. **No Hidden Operations**: Every database query and API call is explicit
+6. **Plugin Transparency**: Premium features use the same auditable codebase
+7. **Security by Design**: Multiple layers of protection and validation
 
 ## File Structure Guide
 
@@ -33,7 +34,7 @@ src/
 ├── server.ts              # Main Express application and startup
 ├── index.ts               # Public API exports
 ├── types.ts               # TypeScript interfaces and types
-├── page-manager.ts        # In-memory page management
+├── page-manager.ts        # Hierarchical page management with tree operations
 ├── services/
 │   ├── auth-service.ts    # JWT authentication and password hashing
 │   ├── database-service.ts # CouchDB operations and user isolation
@@ -41,7 +42,7 @@ src/
 │   └── plugin-manager.ts  # Plugin discovery and loading
 ├── routes/
 │   ├── auth.ts           # Authentication endpoints (login/register)
-│   ├── pages.ts          # CRUD operations for pages (supports encryption)
+│   ├── pages.ts          # Hierarchical page CRUD with encryption support
 │   ├── encryption.ts     # Public key registry for collaboration
 │   └── sync.ts           # Synchronization and CouchDB compatibility
 ├── middleware/
@@ -56,10 +57,11 @@ src/
 1. **Maintain Transparency**: All operations must be auditable
 2. **Zero-Knowledge Principle**: Server must never handle plaintext of encrypted data
 3. **User Isolation**: Always validate user access to data
-4. **Client-Side First**: Encryption/decryption only on client side
-5. **Error Handling**: Comprehensive error handling with logging
-6. **Type Safety**: Use TypeScript types for all interfaces
-7. **Security**: Input validation, rate limiting, auth checks
+4. **Hierarchical Integrity**: Respect parent-child relationships and user boundaries
+5. **Client-Side First**: Encryption/decryption only on client side
+6. **Error Handling**: Comprehensive error handling with logging
+7. **Type Safety**: Use TypeScript types for all interfaces
+8. **Security**: Input validation, rate limiting, auth checks
 
 ### Code Patterns to Follow
 
@@ -73,6 +75,32 @@ async getPageById(id: string, userId: string): Promise<Page | null> {
     throw new Error('Access denied');
   }
   return page;
+}
+
+// Hierarchical operations require parent validation
+async createChildNode(parentId: string, nodeData: Partial<Page>, userId: string): Promise<Page> {
+  const parent = await this.getPageById(parentId, userId);
+  if (!parent) {
+    throw new Error('Parent not found or access denied');
+  }
+  if (parent.type === 'page') {
+    throw new Error('Cannot create children under page nodes');
+  }
+  
+  // Create child with proper hierarchy
+  const child = await this.createPage({
+    ...nodeData,
+    parentId,
+    userId,
+    position: parent.children?.length || 0
+  });
+  
+  // Update parent's children array
+  parent.children = parent.children || [];
+  parent.children.push(child._id);
+  await this.updatePage(parent._id, { children: parent.children });
+  
+  return child;
 }
 ```
 
@@ -169,15 +197,110 @@ interface User {
 ### Pages Collection (notefinity_pages)
 
 ```typescript
+type NodeType = 'space' | 'folder' | 'page';
+
 interface Page {
   _id: string;
   _rev?: string;
   title: string; // Page title (plaintext or encrypted)
   content: string; // Page content (plaintext or encrypted blob)
+  createdAt: Date;
+  updatedAt: Date;
+  tags?: string[];
+  userId: string; // Owner of this node
+  // Hierarchical tree structure
+  type: NodeType; // Type of node in the hierarchy
+  parentId?: string; // Parent node ID (undefined for root spaces)
+  position: number; // Order within parent for sorting
+  children?: string[]; // Array of child node IDs (undefined for pages)
+  // End-to-end encryption support
   isEncrypted?: boolean; // True if content is encrypted
   encryptedContent?: EncryptedBlob; // Opaque encrypted data
   encryptedTitle?: EncryptedBlob; // Encrypted title if privacy needed
+}
 ```
+
+### Keystores Collection (notefinity_keystores)
+
+```typescript
+interface UserPublicKey {
+  _id: string;
+  _rev?: string;
+  userId: string; // Owner of this public key
+  publicKey: string; // User's public key (client-defined format)
+  keyId: string; // Client-defined unique identifier for the key
+  algorithm: string; // Encryption algorithm this key supports
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+## Hierarchical Page Organization
+
+### Tree Structure
+
+Notefinity organizes content in a three-level hierarchy:
+
+1. **Spaces** (`type: 'space'`) - Root level containers (like workspaces)
+2. **Folders** (`type: 'folder'`) - Organizational containers within spaces
+3. **Pages** (`type: 'page'`) - Actual content nodes (leaves in the tree)
+
+### Node Relationships
+
+- **Root Nodes**: Spaces with no `parentId` (top-level containers)
+- **Parent-Child**: Each node (except roots) has a `parentId` pointing to its parent
+- **Siblings**: Nodes with the same `parentId` are ordered by `position`
+- **Children Array**: Non-page nodes maintain a `children` array for quick access
+
+### Implementation Patterns
+
+#### Creating Hierarchical Content
+
+```typescript
+// Create a root space for a user
+const space = pageManager.createPage('My Workspace', '', userId, 'space');
+
+// Create a folder in the space
+const folder = pageManager.createPage('Projects', '', userId, 'folder', space._id);
+
+// Create a page in the folder
+const page = pageManager.createPage('Project Notes', 'Content...', userId, 'page', folder._id);
+```
+
+#### Querying Hierarchical Data
+
+```typescript
+// Get all root spaces for a user
+const spaces = pageManager.getSpacesByUserId(userId);
+
+// Get children of a specific node (ordered by position)
+const children = pageManager.getChildNodes(parentId);
+
+// Get all pages for a user (flat list)
+const allPages = pageManager.getPagesByUserId(userId);
+```
+
+#### Tree Navigation Rules
+
+1. **User Isolation**: Always filter by `userId` first
+2. **Position Ordering**: Sort siblings by `position` field
+3. **Lazy Loading**: Load children on-demand rather than full tree
+4. **Parent Validation**: Ensure parent exists and user has access before creating children
+
+### Database Operations
+
+#### Tree Integrity
+
+- **Parent Existence**: Validate parent exists before creating child
+- **User Boundary**: Children must belong to same user as parent
+- **Position Management**: Automatically assign positions when adding to parent
+- **Orphan Prevention**: Handle parent deletion by moving or deleting children
+
+#### Performance Considerations
+
+- **Index by User**: Primary queries filter by `userId` first
+- **Index by Parent**: Secondary index on `parentId` for child queries
+- **Denormalized Children**: Store `children` array for quick access to child IDs
 
 ## Plugin Development
 
