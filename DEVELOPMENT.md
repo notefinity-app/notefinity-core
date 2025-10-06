@@ -254,8 +254,9 @@ npx vitest --reporter=verbose
 ```
 
 **Test Structure:**
+
 - `tests/server-class.test.ts` - Server initialization and configuration (18 tests)
-- `tests/types.test.ts` - TypeScript interface validation (20 tests)  
+- `tests/types.test.ts` - TypeScript interface validation (20 tests)
 - `tests/plugin-manager.test.ts` - Plugin system testing (11 tests)
 - `tests/*-routes.test.ts` - API endpoint testing (80+ tests)
 - `tests/database-service.test.ts` - Database operations (29 tests)
