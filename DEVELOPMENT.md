@@ -1,14 +1,15 @@
 # Notefinity Core - Development Guide
 
-This guide helps you get the Notefinity Core backend up and running ### 3. Create a Page
+This guide helps you get the Notefinity Core backend up and running for development and demonstration purposes.
 
-````bash
-curl -X POST http://localhost:3001/api/pages \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -d '{
-    "title": "My First Page",
-    "content": "This is the content of my page",opment and demonstration purposes.
+## Key Features
+
+- 🔒 **End-to-End Encryption** - Client-side encryption with zero-knowledge server
+- 🌳 **Hierarchical Organization** - Spaces → Folders → Pages structure  
+- 🔐 **User Data Isolation** - Complete separation of user data
+- 🔌 **Transparent Plugin System** - Auditable premium feature architecture
+- 📊 **CouchDB Integration** - Document-based storage with sync capabilities
+- 🔑 **JWT Authentication** - Secure, stateless authentication
 
 ## Quick Start (5 minutes)
 
@@ -113,27 +114,103 @@ curl -X POST http://localhost:3001/api/auth/login \
 
 Save the token from the response for the next steps.
 
-### 3. Create a Page
+### 3. Create a Hierarchical Structure
 
 ```bash
+# Create a root space
+curl -X POST http://localhost:3001/api/pages \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN_HERE" \
+  -d '{
+    "title": "My Workspace",
+    "content": "",
+    "type": "space",
+    "tags": ["workspace"]
+  }'
+
+# Create a folder in the space (use the space ID from previous response)
+curl -X POST http://localhost:3001/api/pages \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN_HERE" \
+  -d '{
+    "title": "Personal Notes",
+    "content": "",
+    "type": "folder",
+    "parentId": "SPACE_ID_HERE",
+    "tags": ["personal"]
+  }'
+
+# Create a page in the folder (use the folder ID from previous response)
 curl -X POST http://localhost:3001/api/pages \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN_HERE" \
   -d '{
     "title": "My First Page",
     "content": "This is the content of my page",
-    "tags": ["personal", "test"]
+    "type": "page",
+    "parentId": "FOLDER_ID_HERE",
+    "tags": ["test", "development"]
   }'
 ```
 
-### 4. Get All Pages
+### 4. Create an Encrypted Page
+
+```bash
+# Store your public key for collaboration (optional)
+curl -X POST http://localhost:3001/api/keys/store-public-key \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN_HERE" \
+  -d '{
+    "publicKey": "-----BEGIN PUBLIC KEY-----\nYOUR_PUBLIC_KEY_HERE\n-----END PUBLIC KEY-----",
+    "keyId": "my-key-2024",
+    "algorithm": "RSA-OAEP+AES-256-GCM"
+  }'
+
+# Create an encrypted page (content encrypted client-side before sending)
+curl -X POST http://localhost:3001/api/pages \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN_HERE" \
+  -d '{
+    "title": "",
+    "content": "",
+    "type": "page",
+    "parentId": "FOLDER_ID_HERE",
+    "isEncrypted": true,
+    "encryptedTitle": {
+      "algorithm": "RSA-OAEP+AES-256-GCM",
+      "data": "base64-encrypted-title-data",
+      "version": 1
+    },
+    "encryptedContent": {
+      "algorithm": "RSA-OAEP+AES-256-GCM", 
+      "data": "base64-encrypted-content-data",
+      "version": 1
+    }
+  }'
+```
+
+### 5. Get All Pages
 
 ```bash
 curl -H "Authorization: Bearer YOUR_JWT_TOKEN_HERE" \
   http://localhost:3001/api/pages
 ```
 
-### 5. Sync Data
+### 6. Get User's Spaces (Root Nodes)
+
+```bash
+curl -H "Authorization: Bearer YOUR_JWT_TOKEN_HERE" \
+  http://localhost:3001/api/pages/spaces
+```
+
+### 7. Get Child Nodes of a Parent
+
+```bash
+curl -H "Authorization: Bearer YOUR_JWT_TOKEN_HERE" \
+  http://localhost:3001/api/pages/PARENT_ID/children
+```
+
+### 8. Sync Data
 
 ```bash
 curl -H "Authorization: Bearer YOUR_JWT_TOKEN_HERE" \
