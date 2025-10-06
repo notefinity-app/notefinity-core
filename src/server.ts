@@ -2,6 +2,7 @@ import cors from 'cors';
 import express from 'express';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
+import path from 'path';
 import { authMiddleware } from './middleware/auth';
 import { authRoutes } from './routes/auth';
 import { publicKeyRoutes } from './routes/encryption';
@@ -71,6 +72,10 @@ export class NotefinityServer {
   }
 
   private setupRoutes(): void {
+    // Serve static client files
+    const clientDistPath = path.join(__dirname, '..', 'client-dist');
+    this.app.use(express.static(clientDistPath));
+
     // Health check
     this.app.get('/health', (req, res) => {
       res.json({
@@ -104,11 +109,17 @@ export class NotefinityServer {
 
     // Plugin routes will be added here by the plugin manager
     this.pluginManager.loadPlugins();
+
+    // Catch-all handler for SPA (should be last route)
+    this.app.get('*', (req, res) => {
+      const clientDistPath = path.join(__dirname, '..', 'client-dist');
+      res.sendFile(path.join(clientDistPath, 'index.html'));
+    });
   }
 
   private setupErrorHandling(): void {
-    // 404 handler
-    this.app.use((req, res) => {
+    // API 404 handler for /api/* routes
+    this.app.use('/api/*', (req, res) => {
       res.status(404).json({
         success: false,
         error: 'Not Found',

@@ -14,38 +14,35 @@ This open-source core demonstrates **exactly** what our backend does, proving we
 
 > 🏠 **Want complete data control?** [Self-host Notefinity Core](#-self-hosting) on your own infrastructure with our one-click deployment options. Your data, your servers, your rules.
 
-## 🏗️ Architecture
+## 🏗️ Full-Stack Architecture
 
-### Express.js API Server
+### Integrated Server & Client
 
-- RESTful API endpoints for pages, authentication, and encryption
-- Hierarchical page management with tree structure support
-- End-to-end encryption with client-side key management
+- **Express.js API Server** - RESTful endpoints with security middleware
+- **React SPA Integration** - Serves compiled client from single port
+- **Static File Serving** - Optimized asset delivery with caching
+- **SPA Routing Support** - Client-side routing with fallback handling
 
-- JWT-based authentication
-- Rate limiting and security middleware
-- Structured error handling and logging
+### API & Authentication
 
-### JWT Authentication System
+- **JWT Authentication** - Secure token-based auth system
+- **RESTful API** - All endpoints under `/api/*` namespace
+- **Rate Limiting** - Protection against abuse and attacks
+- **CORS Configuration** - Secure cross-origin resource sharing
 
-- Secure token-based authentication
-- Password hashing with bcrypt
-- Token expiration and validation
-- No session storage - stateless design
+### Data Layer
 
-### CouchDB Integration
+- **CouchDB Integration** - Document-based storage for user isolation
+- **Hierarchical Pages** - Tree structure support (spaces → folders → pages)
+- **End-to-End Encryption** - Client-side encryption with zero-knowledge server
+- **Real-time Sync** - CouchDB changes feed for live collaboration
 
-- Document-based storage for user isolation
-- Authenticated sync API endpoints
-- Changes feed for real-time synchronization
-- User data never crosses boundaries
+### Plugin Architecture
 
-### Plugin System
-
-- Extensible architecture for premium features
-- Plugins operate on the same transparent codebase
-- Clear plugin API with context isolation
-- Premium features added through auditable plugins
+- **Extensible System** - Add premium features through auditable plugins
+- **Transparent Operations** - All plugin code uses same visible APIs
+- **Context Isolation** - Controlled access to server resources
+- **Monorepo Integration** - Seamless integration with proprietary extensions
 
 ## 🚀 Quick Start
 
@@ -54,53 +51,86 @@ This open-source core demonstrates **exactly** what our backend does, proving we
 - Node.js 20+
 - CouchDB 3.x running locally or accessible URL
 
-### Installation
+### Installation & Setup
+
+This project is part of a monorepo structure. For full functionality, you'll need both projects:
 
 ```bash
+# Clone both repositories
+git clone https://github.com/notefinity-app/notefinity-core.git core
+git clone https://github.com/your-org/notefinity-main-private.git main
+
 # Install dependencies
-npm install
+cd core && npm install
+cd ../main && npm install
 
-# Copy environment template
+# Configure environment
+cd ../core
 cp .env.example .env
+# Edit .env: Set JWT_SECRET, COUCHDB_URL, etc.
 
-# Configure your environment (edit .env file)
-# At minimum, set your JWT_SECRET and COUCHDB_URL
+# Full build process
+cd ../
+./build-all.sh
 
-# Build the project
-npm run build
-
-# Start the server
-npm start
+# Start the integrated server
+cd core && npm start
 ```
 
-### Development
+### Development Modes
 
 ```bash
-# Development mode with auto-restart
-npm run dev
+# Option 1: Full build and start
+./build-all.sh && cd core && npm start
 
-# Run tests
-npm test
+# Option 2: Development with auto-rebuild
+cd core && npm run dev:watch     # Server with auto-restart
+cd main && npm run dev:client    # React dev server (port 3000)
 
-# Run tests with coverage
-npm run test:coverage
+# Option 3: Individual builds
+cd main && npm run build         # Build React SPA + server extensions
+cd ../core && npm run build      # Build API server + copy client
 ```
+
+### Testing
+
+```bash
+# Run server tests
+cd core && npm test
+
+# Run with coverage
+npm run test:coverage
+
+# Watch mode
+npm run test:watch
+```
+
+## 🌐 URL Structure
+
+The server serves both API and React SPA from a single port:
+
+- **`http://localhost:3001/`** - React SPA (root and client-side routes)
+- **`http://localhost:3001/api/*`** - RESTful API endpoints
+- **`http://localhost:3001/health`** - Server health check
+- **`http://localhost:3001/assets/*`** - Static assets (CSS, JS, images)
+
+All non-API routes serve the React SPA, enabling client-side routing.
 
 ## 📡 API Endpoints
 
-### Authentication
+### Authentication (`/api/auth`)
 
 - `POST /api/auth/register` - User registration
 - `POST /api/auth/login` - User login
-- `GET /api/auth/profile` - Get user profile
+- `GET /api/auth/profile` - Get user profile (authenticated)
 
-### Pages Management
+### Pages Management (`/api/pages`)
 
-- `GET /api/pages` - Get all user pages
-- `GET /api/pages/:id` - Get specific page
-- `POST /api/pages` - Create new page
-- `PUT /api/pages/:id` - Update page
-- `DELETE /api/pages/:id` - Delete page
+- `GET /api/pages` - Get all user pages (authenticated)
+- `GET /api/pages/:id` - Get specific page (authenticated)
+- `POST /api/pages` - Create new page (authenticated)
+- `PUT /api/pages/:id` - Update page (authenticated)
+- `DELETE /api/pages/:id` - Delete page (authenticated)
 
 ### Tree Structure (Hierarchical Organization)
 
@@ -441,15 +471,24 @@ For detailed instructions, troubleshooting, and advanced configurations:
 - **Configuration Help:** Review [environment examples](.env.example)
 - **Community Support:** Create an issue in this repository
 
-## 🔍 Audit & Verification
+## � Documentation
+
+- **[Full-Stack Integration Guide](../FULL_STACK_INTEGRATION.md)** - Complete setup and development guide
+- **[Client Integration Quick Reference](../CLIENT_INTEGRATION.md)** - Build process summary
+- **[Copilot Instructions](./COPILOT_INSTRUCTIONS.md)** - Detailed development guidelines
+- **[Self-Hosting Guide](./self-hosting/README.md)** - Deploy your own instance
+- **[End-to-End Encryption](./E2E_ENCRYPTION.md)** - Security implementation details
+
+## �🔍 Audit & Verification
 
 This codebase is designed for complete auditability:
 
 1. **No Hidden Operations**: Every database operation is explicit
 2. **Clear Data Flow**: Follow data from API to database
 3. **Minimal Dependencies**: Carefully chosen, well-maintained packages
-4. **Comprehensive Tests**: All functionality is tested
-5. **Plugin Transparency**: Extensions operate on same codebase
+4. **Full-Stack Transparency**: Client and server code both visible
+5. **Comprehensive Tests**: All functionality is tested
+6. **Plugin Transparency**: Extensions operate on same codebase
 
 ## 📄 License
 

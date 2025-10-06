@@ -15,7 +15,16 @@ This is the **open-source core** of Notefinity, a privacy-focused knowledge mana
 - **CouchDB Integration**: Document database for user data isolation
 - **End-to-End Encryption**: Client-side only, zero-knowledge server architecture
 - **Plugin System**: Extensible architecture for premium features
+- **Static File Serving**: Serves compiled React SPA from client-dist/
 - **Transparency Layer**: All operations are auditable and visible
+
+### Full-Stack Integration
+
+The core server now serves both:
+
+1. **REST API**: Under `/api/*` routes for backend functionality
+2. **React SPA**: Static client files with SPA fallback routing
+3. **Plugin Extensions**: Proprietary features from the main project
 
 ### Key Design Principles
 
@@ -31,7 +40,7 @@ This is the **open-source core** of Notefinity, a privacy-focused knowledge mana
 
 ```
 src/
-├── server.ts              # Main Express application and startup
+├── server.ts              # Main Express application, static serving, and startup
 ├── index.ts               # Public API exports
 ├── types.ts               # TypeScript interfaces and types
 ├── page-manager.ts        # Hierarchical page management with tree operations
@@ -47,7 +56,30 @@ src/
 │   └── sync.ts           # Synchronization and CouchDB compatibility
 ├── middleware/
 │   └── auth.ts           # JWT token validation middleware
-└── utils/               # Utility functions and helpers
+├── utils/               # Utility functions and helpers
+├── client-dist/         # Built React SPA (copied from main project)
+└── dist/                # Compiled TypeScript server code
+```
+
+## Project Structure (Full Stack)
+
+This core project is part of a monorepo structure:
+
+```
+notefinity8/
+├── core/                    # This OSS project
+│   ├── src/                 # Server source code
+│   ├── dist/                # Compiled server
+│   ├── client-dist/         # Built React SPA (from main)
+│   └── package.json
+└── main/                    # Proprietary project
+    ├── src/
+    │   ├── server/          # Server extensions
+    │   └── client/          # React SPA source
+    ├── dist/
+    │   ├── server/          # Compiled extensions
+    │   └── client/          # Built React SPA
+    └── package.json
 ```
 
 ## Development Guidelines
@@ -104,6 +136,24 @@ async createChildNode(parentId: string, nodeData: Partial<Page>, userId: string)
 }
 ```
 
+#### Static File Serving & SPA Integration
+
+The server now serves both API and client files:
+
+```typescript
+// Static files served from client-dist/
+this.app.use(express.static(clientDistPath));
+
+// API routes under /api/*
+this.app.use('/api/auth', authRoutes);
+this.app.use('/api/pages', authMiddleware, pagesRoutes);
+
+// SPA fallback (must be last)
+this.app.get('*', (req, res) => {
+  res.sendFile(path.join(clientDistPath, 'index.html'));
+});
+```
+
 #### API Endpoints
 
 ```typescript
@@ -118,6 +168,33 @@ if (!req.user) {
 }
 ```
 
+### Build Process Integration
+
+The core project integrates with the main project's build output:
+
+1. **Main project** builds React SPA to `dist/client/`
+2. **Core project** copies client files to `client-dist/`
+3. **Server** serves static files and API from single port
+
+```bash
+# Full build process
+cd main && npm run build          # Build React SPA + server extensions
+cd ../core && npm run build       # Build server + copy client
+npm start                         # Serve both API and SPA
+```
+
+#### URL Structure & Routing
+
+The server handles requests as follows:
+
+- **`/`** - React SPA (root and any non-API path)
+- **`/api/auth/*`** - Authentication endpoints
+- **`/api/pages/*`** - Page management (authenticated)
+- **`/api/sync/*`** - Synchronization endpoints
+- **`/api/keys/*`** - Public key management
+- **`/health`** - Server health check
+- **Static assets** - Served from `/assets/*` (CSS, JS, images)
+
 #### Plugin Integration
 
 ```typescript
@@ -129,6 +206,13 @@ const context: PluginContext = {
   logger: loggerService,
 };
 ```
+
+### Deployment Considerations
+
+- **Single Port**: API and SPA served from same origin (prevents CORS issues)
+- **Static Caching**: Set appropriate cache headers for client assets
+- **SPA Routing**: Ensure all non-API routes serve index.html
+- **Environment**: Use NODE_ENV=production for optimizations
 
 ### Testing Requirements
 
