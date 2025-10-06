@@ -40,6 +40,7 @@ export class AuthService implements IAuthService {
       }) as JwtPayload;
 
       return decoded;
+      // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
     } catch (error) {
       // Token is invalid, expired, or malformed
       return null;

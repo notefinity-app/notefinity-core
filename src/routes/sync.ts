@@ -92,11 +92,13 @@ export function syncRoutes(
 
           if (pageData._id && pageData._id.startsWith('page_')) {
             // Update existing page
+            // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
             const { _id, _rev, ...updateData } = pageData;
             await databaseService.updatePage(_id, req.user.userId, updateData);
             results.updated++;
           } else {
             // Create new page
+            // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
             const { _id, _rev, ...createData } = pageData;
             await databaseService.createPage(createData);
             results.created++;

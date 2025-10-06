@@ -9,7 +9,7 @@ export class Logger implements ILogger {
     reset: '\x1b[0m', // reset
   };
 
-  log(level: LogLevel, message: string, ...args: any[]): void {
+  log(level: LogLevel, message: string, ...args: unknown[]): void {
     const timestamp = new Date().toISOString();
     const color = this.colors[level];
     const reset = this.colors.reset;
@@ -23,19 +23,19 @@ export class Logger implements ILogger {
     }
   }
 
-  debug(message: string, ...args: any[]): void {
+  debug(message: string, ...args: unknown[]): void {
     this.log('debug', message, ...args);
   }
 
-  info(message: string, ...args: any[]): void {
+  info(message: string, ...args: unknown[]): void {
     this.log('info', message, ...args);
   }
 
-  warn(message: string, ...args: any[]): void {
+  warn(message: string, ...args: unknown[]): void {
     this.log('warn', message, ...args);
   }
 
-  error(message: string, ...args: any[]): void {
+  error(message: string, ...args: unknown[]): void {
     this.log('error', message, ...args);
   }
 }
