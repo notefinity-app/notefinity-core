@@ -35,6 +35,32 @@ This is part of a monorepo with two projects:
 
 **Versioning Strategy**: Using hybrid independent versioning - Major.Minor coordinated for compatibility, patches independent. Automated via `npm run release:*` commands.
 
+## 🚨 Critical Development Workflow Reminders
+
+### **ALWAYS Before Committing:**
+
+1. **Run Quality Checks**: `npm run precommit` (format:check + lint + type-check)
+2. **Verify CI Won't Fail**: Formatting/linting issues will break the build
+3. **Check Git Status**: Ensure no untracked files or uncommitted changes
+
+### **When Making Releases:**
+
+1. **Check Current Status**: `npm run release:status` first
+2. **Choose Right Release Type**:
+   - `npm run release:patch-core` - Core bug fixes (main unchanged)
+   - `npm run release:patch-main` - UI improvements (core unchanged)
+   - `npm run release:minor-core` - New APIs (coordinates main)
+   - `npm run release:minor-main` - New UI features (coordinates core)
+   - `npm run release:major-both` - Breaking changes (always together)
+3. **Finalize Release**: `npm run release:finalize` (commit + tag + push)
+
+### **Before Helping User with Changes:**
+
+- **Always run precommit checks** before any git operations
+- **Remind user about quality gates** if they're about to commit
+- **Suggest appropriate release type** based on changes being made
+- **Reference RELEASE_GUIDE.md** for detailed workflow steps
+
 ### Key Design Principles
 
 1. **User Data Isolation**: Each user's data is completely separated
@@ -73,6 +99,29 @@ src/
 ## Project Structure (Full Stack)
 
 This core project is part of a monorepo structure:
+
+### **🏗️ Monorepo Layout:**
+
+```
+notefinity8/ (parent repo with shared tools)
+├── scripts/
+│   ├── release.js         # Hybrid versioning automation
+│   └── finalize.js        # Git commit/tag/push automation
+├── VERSION_STRATEGY.md    # Versioning rules and documentation
+├── RELEASE_GUIDE.md       # Quick reference for releases
+├── core/ (git submodule)  # This open-source project
+└── main/ (git submodule)  # Proprietary React frontend
+```
+
+### **⚠️ Important File Management Rules:**
+
+- **Never edit `client-dist/`** - It's generated from main project
+- **client-dist/ excluded** from formatting/linting (in .prettierignore & eslint.config.js)
+- **Shared scripts** are in parent directory (`../scripts/`)
+- **Each project has own package.json** with release commands
+- **Submodule references** need updating after commits (handled by release system)
+
+### **🔄 Integration Points:**
 
 ```
 notefinity8/
@@ -593,6 +642,35 @@ self-hosting/
 - **Auditable Containers**: Dockerfile shows exact production environment
 - **Open Configuration**: All deployment scripts and configs are transparent
 - **Self-Contained**: No external services or hidden API calls during deployment
+
+## 🚨 Troubleshooting & Common Issues
+
+### **When CI Fails:**
+
+1. **Check local precommit**: Run `npm run precommit` to catch issues early
+2. **Format problems**: Run `npm run format` then recommit
+3. **Lint warnings**: Address TypeScript/ESLint issues in src/ files
+4. **Type errors**: Run `npm run type-check` to see TypeScript problems
+
+### **When Release Commands Fail:**
+
+1. **Check status first**: `npm run release:status` shows current versions
+2. **Uncommitted changes**: Clean working directory before releasing
+3. **Version conflicts**: Verify compatibility between core/main versions
+4. **Git issues**: Ensure all changes are pushed before release:finalize
+
+### **When Build Fails:**
+
+1. **Missing client-dist**: Run `cd ../main && npm run build` first
+2. **Submodule issues**: Update submodule references after commits
+3. **Dependency problems**: Run `npm ci` to clean install dependencies
+
+### **Before Asking for Help:**
+
+- Run `npm run release:status` and share output
+- Check `git status` in both core/ and main/ projects
+- Verify precommit checks pass in both projects
+- Look at RELEASE_GUIDE.md for workflow steps
 
 ## Future Development
 
