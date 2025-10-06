@@ -5,6 +5,35 @@ All notable changes to the Notefinity Core project will be documented in this fi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2025-10-06
+
+### Added
+
+- **🏠 COMPREHENSIVE SELF-HOSTING SUPPORT**: Complete deployment infrastructure for data sovereignty
+
+  - **CapRover Deployment**: One-click deployment with automated script (`npm run deploy:caprover`)
+  - **Docker Production Build**: Multi-stage Dockerfile with security hardening and health checks
+  - **Self-Hosting Directory**: Organized deployment configs in `self-hosting/` with method comparison
+  - **Automated Deployment Script**: `deploy-caprover.sh` with testing, building, and deployment automation
+  - **Environment Configuration**: Enhanced `.env.example` with deployment-specific variables and security notes
+  - **Comprehensive Documentation**: Step-by-step guides for all deployment methods with troubleshooting
+
+- **🚀 Enhanced Developer Experience**:
+  - **New NPM Scripts**: `deploy:caprover`, `docker:build`, `docker:run` for streamlined deployment
+  - **Production Optimization**: Non-root container user, health monitoring, and security best practices
+  - **Deployment Method Comparison**: Clear guidance for choosing between CapRover and Docker
+  - **Self-Hosting Benefits**: Complete data control, transparency, cost effectiveness, and privacy compliance
+
+- **📋 Updated Documentation**:
+  - **README Self-Hosting Section**: Prominent self-hosting information with quick start commands
+  - **Copilot Instructions**: Added deployment architecture and transparency considerations
+  - **Directory Organization**: Logical structure for current and future deployment methods
+
+### Changed
+
+- **Repository Structure**: Moved deployment configs to dedicated `self-hosting/` directory
+- **Documentation Flow**: Integrated self-hosting as primary deployment option in README
+
 ## [1.1.2] - 2025-10-06
 
 ### Added

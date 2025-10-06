@@ -1,6 +1,6 @@
 {
   "name": "@notefinity/core",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "Open source core of Notefinity",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -18,7 +18,10 @@
     "test:unit": "vitest run --coverage --reporter=verbose",
     "test:ci": "vitest run --coverage --reporter=json --reporter=verbose",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
-    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\""
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
+    "deploy:caprover": "./self-hosting/caprover/deploy-caprover.sh",
+    "docker:build": "docker build -t notefinity-core .",
+    "docker:run": "docker run -p 3000:3000 --env-file .env notefinity-core"
   },
   "keywords": [
     "notes",

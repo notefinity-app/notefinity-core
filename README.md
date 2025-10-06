@@ -12,6 +12,8 @@ Open source core of Notefinity - A transparent, privacy-focused knowledge manage
 
 This open-source core demonstrates **exactly** what our backend does, proving we cannot access your data. Every API endpoint, database interaction, and data flow is visible and auditable.
 
+> 🏠 **Want complete data control?** [Self-host Notefinity Core](#-self-hosting) on your own infrastructure with our one-click deployment options. Your data, your servers, your rules.
+
 ## 🏗️ Architecture
 
 ### Express.js API Server
@@ -356,6 +358,88 @@ Access CouchDB admin at `http://localhost:5984/_utils` and:
 - `npm test` - Run test suite
 - `npm run format` - Format code with Prettier
 - `npm run clean` - Clean build artifacts
+
+## 🏠 Self-Hosting
+
+Take full control of your data by hosting Notefinity Core on your own infrastructure. Our self-hosting options provide complete transparency and data sovereignty.
+
+### 🚀 Quick Start - CapRover (Recommended)
+
+**Perfect for beginners** - One-click deployment with web dashboard:
+
+```bash
+# Install CapRover CLI
+npm install -g caprover
+
+# Deploy instantly
+npm run deploy:caprover
+```
+
+### 🐳 Docker Deployment
+
+**For advanced users** - Maximum control and flexibility:
+
+```bash
+# Build and run
+npm run docker:build
+npm run docker:run
+
+# Or manually
+docker build -t notefinity-core .
+docker run -p 3000:3000 --env-file .env notefinity-core
+```
+
+### 📋 Deployment Methods Comparison
+
+| Method       | Difficulty  | Best For                      | Features                              |
+| ------------ | ----------- | ----------------------------- | ------------------------------------- |
+| **CapRover** | ⭐ Easy     | Beginners, small-medium apps  | Web dashboard, auto SSL, scaling      |
+| **Docker**   | ⭐⭐ Medium | Advanced users, custom setups | Full control, container orchestration |
+
+### 🛠️ Prerequisites
+
+All deployment methods require:
+
+1. **CouchDB Instance** - Your database (can be self-hosted or cloud)
+2. **Environment Setup** - Configure from `.env.example`
+3. **Domain/Server** - Where your app will live
+
+### ⚙️ Essential Configuration
+
+```bash
+# Copy and configure environment
+cp .env.example .env
+```
+
+**Required Variables:**
+
+- `COUCHDB_URL` - Your CouchDB instance URL
+- `COUCHDB_USERNAME` & `COUCHDB_PASSWORD` - Database credentials
+- `JWT_SECRET` - Strong authentication secret (32+ characters)
+
+### 📖 Comprehensive Self-Hosting Guide
+
+For detailed instructions, troubleshooting, and advanced configurations:
+
+**📁 [Complete Self-Hosting Documentation](self-hosting/)**
+
+- **CapRover Guide:** [self-hosting/caprover/](self-hosting/caprover/) - Step-by-step CapRover deployment
+- **Docker Setup:** [Dockerfile](Dockerfile) - Production-ready containerization
+- **All Options:** [self-hosting/README.md](self-hosting/README.md) - Compare all deployment methods
+
+### 🔐 Why Self-Host?
+
+✅ **Complete Data Control** - Your data never leaves your servers  
+✅ **Full Transparency** - Audit every line of code that handles your data  
+✅ **Cost Effective** - No recurring SaaS fees  
+✅ **Customizable** - Modify and extend as needed  
+✅ **Privacy Compliant** - Meet any regulatory requirements
+
+### 🆘 Self-Hosting Support
+
+- **Setup Issues:** Check [self-hosting documentation](self-hosting/)
+- **Configuration Help:** Review [environment examples](.env.example)
+- **Community Support:** Create an issue in this repository
 
 ## 🔍 Audit & Verification
 

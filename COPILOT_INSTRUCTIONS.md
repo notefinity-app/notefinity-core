@@ -448,6 +448,57 @@ interface UserPublicKey {
 4. **Mixed Content Support**: Handle both encrypted and unencrypted pages transparently
 5. **Audit Trail**: Log all encryption-related operations for transparency
 
+## Self-Hosting & Deployment
+
+### Deployment Architecture
+
+The core is designed for **transparent self-hosting**, enabling users to:
+
+- **Verify Operations**: Run the exact same code that handles their data
+- **Data Sovereignty**: Maintain complete control over their information
+- **Compliance**: Meet regulatory requirements through self-hosting
+- **Cost Control**: Avoid recurring SaaS fees
+
+### Available Deployment Methods
+
+#### CapRover (Recommended for Beginners)
+- **Location**: `self-hosting/caprover/`
+- **Features**: One-click deployment, web dashboard, automatic SSL
+- **Files**: `captain-definition`, deployment script, comprehensive docs
+- **Usage**: `npm run deploy:caprover`
+
+#### Docker (For Advanced Users)
+- **Location**: Root `Dockerfile` with multi-stage build
+- **Features**: Production optimization, security hardening, health checks
+- **Usage**: `npm run docker:build && npm run docker:run`
+
+### Deployment Security Considerations
+
+1. **Environment Isolation**: All sensitive config via environment variables
+2. **Non-Root User**: Container runs as dedicated user for security
+3. **Health Monitoring**: Built-in health check endpoints
+4. **Database Security**: CouchDB credentials and access control
+5. **JWT Security**: Strong secret generation and rotation
+
+### Self-Hosting File Structure
+
+```
+self-hosting/
+├── README.md                    # Overview of all deployment options
+└── caprover/
+    ├── captain-definition       # CapRover deployment config
+    ├── deploy-caprover.sh      # Automated deployment script
+    ├── caprover-app-config.json # App configuration template
+    └── CAPROVER_DEPLOYMENT.md  # Detailed deployment guide
+```
+
+### Transparency in Deployment
+
+- **No Hidden Dependencies**: All deployment configs are version controlled
+- **Auditable Containers**: Dockerfile shows exact production environment
+- **Open Configuration**: All deployment scripts and configs are transparent
+- **Self-Contained**: No external services or hidden API calls during deployment
+
 ## Future Development
 
 ### Planned Enhancements
