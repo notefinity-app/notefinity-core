@@ -765,17 +765,11 @@ We welcome contributions to the Notefinity core! Please see our [Contributing Gu
 
 This copyleft license ensures that any service built using this code must also be open source, protecting the transparent ecosystem.
 
-## Related Projects
-
-- **Notefinity Main**: Main application with advanced features (private repository)
-- **Notefinity CLI**: Command-line interface for Notefinity
-- **Notefinity Web**: Web application built on Notefinity core
-
 ## Support
 
 - 📖 [Documentation](https://docs.notefinity.com)
-- 💬 [Community Discussions](https://github.com/your-org/notefinity-core/discussions)
-- 🐛 [Report Issues](https://github.com/your-org/notefinity-core/issues)
+- 💬 [Community Discussions](https://github.com/notefinity-app/notefinity-core/discussions)
+- 🐛 [Report Issues](https://github.com/notefinity-app/notefinity-core/issues)
 
 ---
 
