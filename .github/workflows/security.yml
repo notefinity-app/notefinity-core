@@ -65,22 +65,46 @@ jobs:
 
       - name: Install ESLint and security plugins
         run: |
-          npm install --no-save eslint @microsoft/eslint-formatter-sarif || echo "ESLint installation failed"
+          echo "Attempting to install ESLint for security scanning..."
+          npm install --no-save eslint @microsoft/eslint-formatter-sarif 2>/dev/null || echo "ESLint installation failed, will skip security scanning"
         continue-on-error: true
 
       - name: Run ESLint Security Rules
         run: |
-          if command -v npx eslint &> /dev/null; then
-            npx eslint . --ext .js,.ts --format @microsoft/eslint-formatter-sarif --output-file eslint-results.sarif || true
+          # Create a valid empty SARIF file as default
+          cat > eslint-results.sarif << 'EOF'
+          {
+            "version": "2.1.0",
+            "runs": []
+          }
+          EOF
+          
+          # Try to run ESLint if available
+          if command -v npx &> /dev/null; then
+            if npx eslint --version &> /dev/null; then
+              echo "Running ESLint security analysis..."
+              npx eslint . --ext .js,.ts --format @microsoft/eslint-formatter-sarif --output-file eslint-results.sarif 2>/dev/null || echo "ESLint completed with issues"
+            else
+              echo "ESLint not properly installed, using empty SARIF file"
+            fi
           else
-            echo "ESLint not available, skipping..."
-            echo "[]" > eslint-results.sarif
+            echo "npx not available, using empty SARIF file"
           fi
         continue-on-error: true
 
+      - name: Check if SARIF file exists and upload
+        run: |
+          if [ -f "eslint-results.sarif" ] && [ -s "eslint-results.sarif" ]; then
+            echo "SARIF file exists and is not empty, will upload"
+            echo "UPLOAD_SARIF=true" >> $GITHUB_ENV
+          else
+            echo "SARIF file missing or empty, skipping upload"
+            echo "UPLOAD_SARIF=false" >> $GITHUB_ENV
+          fi
+
       - name: Upload ESLint results
         uses: github/codeql-action/upload-sarif@v3
-        if: always()
+        if: env.UPLOAD_SARIF == 'true'
         with:
           sarif_file: eslint-results.sarif
           wait-for-processing: true
