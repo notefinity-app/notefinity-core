@@ -27,7 +27,14 @@ describe('PluginManager', () => {
 
   beforeEach(() => {
     mockContext = {
-      app: { use: vi.fn() },
+      app: {
+        use: vi.fn(),
+        get: vi.fn(),
+        post: vi.fn(),
+        put: vi.fn(),
+        delete: vi.fn(),
+        patch: vi.fn(),
+      },
       database: {} as any,
       auth: {} as any,
       logger: {
@@ -63,27 +70,48 @@ describe('PluginManager', () => {
       );
     });
 
+    it('should create sample plugin files when directory is created', async () => {
+      (fs.access as any).mockRejectedValue(new Error('Directory not found'));
+      (fs.mkdir as any).mockResolvedValue(undefined);
+      (fs.writeFile as any).mockResolvedValue(undefined);
+
+      await pluginManager.loadPlugins();
+
+      expect(fs.writeFile).toHaveBeenCalledTimes(2); // sample plugin + README
+      expect(fs.writeFile).toHaveBeenCalledWith(
+        expect.stringContaining('sample-plugin.js'),
+        expect.stringContaining('Sample Notefinity Plugin')
+      );
+      expect(fs.writeFile).toHaveBeenCalledWith(
+        expect.stringContaining('README.md'),
+        expect.stringContaining('# Notefinity Plugins')
+      );
+    });
+
     it('should load plugin files from existing directory', async () => {
       (fs.access as any).mockResolvedValue(undefined);
       (fs.readdir as any).mockResolvedValue(['plugin1.js', 'plugin2.ts', 'readme.txt']);
 
-      // Mock dynamic import
-      const mockPlugin1 = {
-        name: 'plugin1',
-        version: '1.0.0',
-        enabled: true,
-        initialize: vi.fn(),
-      };
+      // Mock dynamic import with global mock
+      const mockImport = vi.fn();
+      vi.stubGlobal('import', mockImport);
 
-      const mockPlugin2 = {
-        name: 'plugin2',
-        version: '1.0.0',
-        enabled: true,
-      };
-
-      // Mock the dynamic imports
-      vi.doMock('plugins/plugin1.js', () => ({ default: mockPlugin1 }));
-      vi.doMock('plugins/plugin2.ts', () => ({ default: mockPlugin2 }));
+      mockImport
+        .mockResolvedValueOnce({
+          default: {
+            name: 'plugin1',
+            version: '1.0.0',
+            enabled: true,
+            initialize: vi.fn(),
+          },
+        })
+        .mockResolvedValueOnce({
+          default: {
+            name: 'plugin2',
+            version: '1.0.0',
+            enabled: true,
+          },
+        });
 
       await pluginManager.loadPlugins();
 
@@ -119,8 +147,25 @@ describe('PluginManager', () => {
 
       await pluginManager.loadPlugins();
 
-      // Should only attempt to load .js and .ts files
       expect(fs.readdir).toHaveBeenCalledWith(expect.stringContaining('plugins'));
+      expect(mockContext.logger.log).toHaveBeenCalledWith(
+        'info',
+        expect.stringContaining('Loaded')
+      );
+    });
+
+    it('should handle plugin loading errors gracefully', async () => {
+      (fs.access as any).mockResolvedValue(undefined);
+      (fs.readdir as any).mockResolvedValue(['invalid-plugin.js']);
+
+      await pluginManager.loadPlugins();
+
+      // Should log errors for failed plugin loads
+      expect(mockContext.logger.log).toHaveBeenCalledWith(
+        'error',
+        expect.stringContaining('Failed to load plugin'),
+        expect.any(Error)
+      );
     });
   });
 

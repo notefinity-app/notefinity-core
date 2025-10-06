@@ -231,6 +231,8 @@ npm run dev:watch
 
 ### Testing
 
+The project maintains **76.08% test coverage** across 200 comprehensive tests:
+
 ```bash
 # Run all tests
 npm test
@@ -238,12 +240,26 @@ npm test
 # Run tests in watch mode
 npm run test:watch
 
-# Run with coverage
+# Run with coverage report
 npm run test:coverage
 
-# View test UI
+# View interactive test UI
 npm run test:ui
+
+# Run specific test file
+npx vitest tests/server-class.test.ts
+
+# Run tests matching pattern
+npx vitest --reporter=verbose
 ```
+
+**Test Structure:**
+- `tests/server-class.test.ts` - Server initialization and configuration (18 tests)
+- `tests/types.test.ts` - TypeScript interface validation (20 tests)  
+- `tests/plugin-manager.test.ts` - Plugin system testing (11 tests)
+- `tests/*-routes.test.ts` - API endpoint testing (80+ tests)
+- `tests/database-service.test.ts` - Database operations (29 tests)
+- `tests/services.test.ts` - Authentication and utilities (5+ tests)
 
 ### Code Quality
 

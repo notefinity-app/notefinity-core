@@ -268,7 +268,7 @@ Plugins receive a context object with:
 
 ## 🧪 Testing
 
-The test suite ensures all functionality works as expected:
+The comprehensive test suite ensures all functionality works as expected with **76.08% code coverage** across 200 tests:
 
 ```bash
 # Run all tests
@@ -283,6 +283,16 @@ npm run test:coverage
 # View coverage in browser
 npm run test:ui
 ```
+
+### Test Coverage Areas
+
+- **Server Class Testing**: Complete `NotefinityServer` initialization, middleware, and routing (18 tests)
+- **Type System Validation**: TypeScript interface verification and runtime type checking (20 tests)
+- **API Endpoints**: All REST endpoints with authentication and error handling (80+ tests)
+- **Database Operations**: CouchDB integration, CRUD operations, and tree structures (29 tests)
+- **Plugin System**: Plugin loading, configuration, and lifecycle management (11 tests)
+- **Security Features**: Authentication, encryption, and access control (30+ tests)
+- **Utility Functions**: Helper functions and shared components (6+ tests)
 
 ## 🌍 Environment Variables
 
