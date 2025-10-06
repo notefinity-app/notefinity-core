@@ -5,6 +5,39 @@ All notable changes to the Notefinity Core project will be documented in this fi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2025-10-06
+
+### Added
+
+- **🔗 FULL-STACK INTEGRATION**: Complete monorepo architecture enabling core to serve React SPA from main project
+
+  - **Static File Serving**: Express middleware to serve compiled React applications with SPA fallback routing
+  - **Monorepo Architecture**: Seamless integration between open-source core and proprietary main project
+  - **Automated Build Pipeline**: Build scripts that compile client from main project into core/client-dist/
+  - **Development Workflows**: Hot reload support with proxy configurations and watch modes
+  - **Cross-Project Dependencies**: npm local package linking for shared code between projects
+  - **Production Deployment**: Optimized build process for serving both API and frontend from single server
+
+- **📚 COMPREHENSIVE INTEGRATION DOCUMENTATION**: Complete guides for full-stack development
+
+  - **CLIENT_INTEGRATION.md**: 200+ line guide covering setup, development, and troubleshooting
+  - **FULL_STACK_INTEGRATION.md**: Complete architecture overview with deployment instructions
+  - **Updated COPILOT_INSTRUCTIONS.md**: Enhanced with full-stack architecture details and best practices
+  - **Updated README.md**: Integration overview with monorepo structure explanation
+
+### Changed
+
+- **Server Configuration**: Express server now serves both REST API (`/api/*`) and React SPA (`/*`)
+- **Build Process**: New build pipeline compiles and copies client assets automatically
+- **Development Workflow**: Updated scripts support both API and frontend development simultaneously
+- **Project Structure**: Enhanced to support seamless integration with proprietary frontend
+
+### Breaking Changes
+
+- Server now serves both API and frontend by default
+- New build process requires main project integration for full functionality
+- Development workflow updated to support full-stack development
+
 ## [1.2.0] - 2025-10-06
 
 ### Added
