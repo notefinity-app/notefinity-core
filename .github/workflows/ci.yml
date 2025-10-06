@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main ]
+    branches: [main]
   schedule:
     # Run security audit weekly on Mondays at 9:00 AM UTC
     - cron: '0 9 * * 1'
@@ -13,11 +13,11 @@ jobs:
   test:
     name: Test & Coverage
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
         node-version: [18.x, 20.x, 22.x]
-    
+
     services:
       couchdb:
         image: couchdb:3.3
@@ -33,179 +33,179 @@ jobs:
           --health-retries 5
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
 
-    - name: Install dependencies
-      run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-    - name: Run linting
-      run: npm run format:check
+      - name: Run linting
+        run: npm run format:check
 
-    - name: Build project
-      run: npm run build
+      - name: Build project
+        run: npm run build
 
-    - name: Wait for CouchDB
-      run: |
-        for i in {1..30}; do
-          if curl -f http://localhost:5984/_up; then
-            echo "CouchDB is ready"
-            break
-          fi
-          echo "Waiting for CouchDB... ($i/30)"
-          sleep 2
-        done
+      - name: Wait for CouchDB
+        run: |
+          for i in {1..30}; do
+            if curl -f http://localhost:5984/_up; then
+              echo "CouchDB is ready"
+              break
+            fi
+            echo "Waiting for CouchDB... ($i/30)"
+            sleep 2
+          done
 
-    - name: Setup CouchDB for tests
-      run: |
-        curl -X PUT http://admin:password@localhost:5984/_users
-        curl -X PUT http://admin:password@localhost:5984/_replicator
-        curl -X PUT http://admin:password@localhost:5984/_global_changes
-      env:
-        COUCHDB_URL: http://admin:password@localhost:5984
+      - name: Setup CouchDB for tests
+        run: |
+          curl -X PUT http://admin:password@localhost:5984/_users
+          curl -X PUT http://admin:password@localhost:5984/_replicator
+          curl -X PUT http://admin:password@localhost:5984/_global_changes
+        env:
+          COUCHDB_URL: http://admin:password@localhost:5984
 
-    - name: Run tests
-      run: npm test
-      env:
-        COUCHDB_URL: http://admin:password@localhost:5984
-        JWT_SECRET: test-secret-key-for-ci
-        NODE_ENV: test
+      - name: Run tests
+        run: npm test
+        env:
+          COUCHDB_URL: http://admin:password@localhost:5984
+          JWT_SECRET: test-secret-key-for-ci
+          NODE_ENV: test
 
-    - name: Generate coverage report
-      run: npm run test:coverage
-      env:
-        COUCHDB_URL: http://admin:password@localhost:5984
-        JWT_SECRET: test-secret-key-for-ci
-        NODE_ENV: test
+      - name: Generate coverage report
+        run: npm run test:coverage
+        env:
+          COUCHDB_URL: http://admin:password@localhost:5984
+          JWT_SECRET: test-secret-key-for-ci
+          NODE_ENV: test
 
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v4
-      with:
-        file: ./coverage/lcov.info
-        flags: unittests
-        name: codecov-umbrella
-        token: ${{ secrets.CODECOV_TOKEN }}
-        fail_ci_if_error: false
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
 
   security:
     name: Security Audit
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20.x'
-        cache: 'npm'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
 
-    - name: Install dependencies
-      run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-    - name: Run npm audit
-      run: npm audit --audit-level=moderate
+      - name: Run npm audit
+        run: npm audit --audit-level=moderate
 
-    - name: Run npm audit fix (dry run)
-      run: npm audit fix --dry-run
-      continue-on-error: true
+      - name: Run npm audit fix (dry run)
+        run: npm audit fix --dry-run
+        continue-on-error: true
 
-    - name: Check for known security vulnerabilities
-      uses: securecodewarrior/github-action-add-sarif@v1
-      if: always()
-      continue-on-error: true
-      with:
-        sarif-file: 'audit-results.sarif'
+      - name: Check for known security vulnerabilities
+        uses: securecodewarrior/github-action-add-sarif@v1
+        if: always()
+        continue-on-error: true
+        with:
+          sarif-file: 'audit-results.sarif'
 
   build:
     name: Build & Package
     runs-on: ubuntu-latest
     needs: [test, security]
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20.x'
-        cache: 'npm'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
 
-    - name: Install dependencies
-      run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-    - name: Build project
-      run: npm run build
+      - name: Build project
+        run: npm run build
 
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: build-files-${{ github.sha }}
-        path: |
-          dist/
-          package.json
-          package-lock.json
-        retention-days: 30
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-files-${{ github.sha }}
+          path: |
+            dist/
+            package.json
+            package-lock.json
+          retention-days: 30
 
   release:
     name: Release
     runs-on: ubuntu-latest
     needs: [test, security, build]
     if: "github.event_name == 'push' && github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, 'chore: bump version')"
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20.x'
-        cache: 'npm'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
 
-    - name: Install dependencies
-      run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-    - name: Build project
-      run: npm run build
+      - name: Build project
+        run: npm run build
 
-    - name: Extract version from package.json
-      id: package-version
-      run: echo "VERSION=$(node -p 'require("./package.json").version')" >> $GITHUB_OUTPUT
+      - name: Extract version from package.json
+        id: package-version
+        run: echo "VERSION=$(node -p 'require("./package.json").version')" >> $GITHUB_OUTPUT
 
-    - name: Create GitHub Release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: v${{ steps.package-version.outputs.VERSION }}
-        release_name: Release v${{ steps.package-version.outputs.VERSION }}
-        body: |
-          ## Changes
-          
-          See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for detailed changes.
-          
-          ## Installation
-          
-          ```bash
-          npm install @notefinity/core@${{ steps.package-version.outputs.VERSION }}
-          ```
-          
-          ## Verification
-          
-          - ✅ All tests passing
-          - ✅ Security audit passed  
-          - ✅ Code coverage: 76.08%+
-          - ✅ Build successful
-        draft: false
-        prerelease: false
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.package-version.outputs.VERSION }}
+          release_name: Release v${{ steps.package-version.outputs.VERSION }}
+          body: |
+            ## Changes
+
+            See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for detailed changes.
+
+            ## Installation
+
+            ```bash
+            npm install @notefinity/core@${{ steps.package-version.outputs.VERSION }}
+            ```
+
+            ## Verification
+
+            - ✅ All tests passing
+            - ✅ Security audit passed  
+            - ✅ Code coverage: 76.08%+
+            - ✅ Build successful
+          draft: false
+          prerelease: false

@@ -267,6 +267,7 @@ npx vitest --reporter=verbose
 The project includes comprehensive GitHub Actions workflows for continuous integration:
 
 **Main CI Pipeline** (`.github/workflows/ci.yml`):
+
 - **Multi-version testing**: Node.js 18.x, 20.x, 22.x
 - **CouchDB integration**: Full database testing with Docker services
 - **Code quality**: Linting, formatting, and build verification
@@ -275,17 +276,20 @@ The project includes comprehensive GitHub Actions workflows for continuous integ
 - **Automated releases**: GitHub releases on version bumps
 
 **Security Pipeline** (`.github/workflows/security.yml`):
+
 - **Daily security scans**: CodeQL analysis and Snyk vulnerability scanning
 - **Dependency monitoring**: Automated security advisory alerts
 - **SARIF reporting**: Security results in GitHub Security tab
 - **NPM audit**: Package vulnerability assessment
 
 **Dependency Management**:
+
 - **Dependabot**: Automated weekly dependency updates
 - **Grouped updates**: Separate handling of dev vs production dependencies
 - **Security patches**: Automatic security vulnerability fixes
 
 **Coverage & Quality Badges**:
+
 - **CI Status**: Real-time build status
 - **Coverage**: Live test coverage percentage (76.08%+)
 - **Version**: Current npm package version
@@ -293,6 +297,7 @@ The project includes comprehensive GitHub Actions workflows for continuous integ
 - **Node.js**: Supported version requirements
 
 **Workflow Triggers**:
+
 - **Push to main/develop**: Full CI pipeline
 - **Pull requests**: Complete testing and security scan
 - **Scheduled runs**: Daily security scans, weekly dependency updates

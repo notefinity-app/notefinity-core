@@ -20,12 +20,14 @@ Add any other context or screenshots about the feature request here.
 
 **Impact on Privacy/Security**
 Since this project focuses on privacy and transparency, please describe how this feature would impact:
+
 - Data privacy
-- Security posture  
+- Security posture
 - Code transparency
 - User control over their data
 
 **Implementation Considerations**
+
 - Would this require database schema changes?
 - Would this affect existing APIs?
 - Are there any breaking changes?

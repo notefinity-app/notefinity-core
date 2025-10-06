@@ -52,8 +52,9 @@ Add any other context about the pull request here.
 ---
 
 **Checklist for Maintainers:**
+
 - [ ] Code review completed
-- [ ] All CI checks passing  
+- [ ] All CI checks passing
 - [ ] Security review completed
 - [ ] Documentation review completed
 - [ ] Ready to merge

@@ -12,16 +12,16 @@ coverage:
         informational: true
 
 comment:
-  layout: "reach,diff,flags,tree"
+  layout: 'reach,diff,flags,tree'
   behavior: default
   require_changes: false
   require_base: false
   require_head: true
 
 ignore:
-  - "dist/"
-  - "coverage/"
-  - "node_modules/"
-  - "tests/**/*"
-  - "*.config.js"
-  - "*.config.ts"
+  - 'dist/'
+  - 'coverage/'
+  - 'node_modules/'
+  - 'tests/**/*'
+  - '*.config.js'
+  - '*.config.ts'
