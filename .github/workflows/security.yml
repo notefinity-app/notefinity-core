@@ -78,7 +78,7 @@ jobs:
             "runs": []
           }
           EOF
-          
+
           # Try to run ESLint if available
           if command -v npx &> /dev/null; then
             if npx eslint --version &> /dev/null; then
