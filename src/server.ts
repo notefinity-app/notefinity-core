@@ -125,7 +125,7 @@ export class NotefinityServer {
     this.app.get('*', (req, res) => {
       const clientDistPath = path.join(__dirname, '..', 'client-dist');
       const indexPath = path.join(clientDistPath, 'index.html');
-      
+
       // Check if client-dist exists and serve SPA, otherwise return 404
       if (require('fs').existsSync(indexPath)) {
         res.sendFile(indexPath);

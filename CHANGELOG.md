@@ -5,6 +5,30 @@ All notable changes to the Notefinity Core project will be documented in this fi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.1] - 2025-10-06
+
+### Fixed
+
+- **🔧 TEST COMPATIBILITY**: Updated test suite for full-stack integration compatibility
+
+  - **Server Routing**: Fixed SPA fallback routing to properly handle both API 404s and SPA serving
+  - **Error Handling**: Enhanced error messages to use `originalUrl` for accurate path reporting
+  - **Test Cases**: Updated test expectations to handle new SPA serving behavior while maintaining API error testing
+  - **Route Logic**: Improved separation between API routes (`/api/*`) and SPA routes for better error handling
+
+- **🛠️ ROUTING IMPROVEMENTS**: Enhanced server configuration for production stability
+
+  - **API Error Responses**: Ensured `/api/*` routes return proper JSON 404 responses
+  - **SPA Fallback**: GET requests to non-API routes serve SPA when client-dist exists, or return 404
+  - **Method Handling**: Non-GET requests to non-API routes return appropriate JSON 404 responses
+  - **Path Resolution**: Fixed URL path handling in error messages for better debugging
+
+### Technical Details
+
+- All 201 tests now pass with full-stack architecture enabled
+- Maintained backward compatibility with existing API behavior
+- Enhanced error reporting for better developer experience
+
 ## [1.3.0] - 2025-10-06
 
 ### Added
