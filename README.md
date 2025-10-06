@@ -483,9 +483,6 @@ For detailed instructions, troubleshooting, and advanced configurations:
 
 ## � Documentation
 
-- **[Full-Stack Integration Guide](../FULL_STACK_INTEGRATION.md)** - Complete setup and development guide
-- **[Client Integration Quick Reference](../CLIENT_INTEGRATION.md)** - Build process summary
-- **[Copilot Instructions](./COPILOT_INSTRUCTIONS.md)** - Detailed development guidelines
 - **[Self-Hosting Guide](./self-hosting/README.md)** - Deploy your own instance
 - **[End-to-End Encryption](./E2E_ENCRYPTION.md)** - Security implementation details
 
