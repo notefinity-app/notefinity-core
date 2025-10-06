@@ -70,8 +70,38 @@ jobs:
           fi
           echo "✅ All files are properly formatted!"
 
+      - name: Fix Rollup binaries before build
+        run: |
+          echo "Ensuring Rollup binaries are properly installed for Vite build..."
+          # Check if Rollup can be loaded
+          if ! node -e "require('rollup')" 2>/dev/null; then
+            echo "Rollup failed to load, applying fix..."
+            rm -rf node_modules package-lock.json
+            npm install
+            
+            # Verify the fix worked
+            if ! node -e "require('rollup')" 2>/dev/null; then
+              echo "Rollup still failing, trying alternative approach..."
+              npm install --force
+            fi
+          fi
+
+          # Final verification
+          if node -e "require('rollup')" 2>/dev/null; then
+            echo "✅ Rollup is working correctly"
+          else
+            echo "❌ Rollup still not working, but continuing..."
+          fi
+
       - name: Build project
-        run: npm run build
+        run: |
+          # Try to build, with fallback if Rollup issues persist
+          if ! npm run build; then
+            echo "Build failed, trying npm install fix and retry..."
+            rm -rf node_modules package-lock.json
+            npm install
+            npm run build
+          fi
 
       - name: Install curl
         run: sudo apt-get update && sudo apt-get install -y curl
@@ -205,8 +235,38 @@ jobs:
             npm install
           fi
 
+      - name: Fix Rollup binaries before build
+        run: |
+          echo "Ensuring Rollup binaries are properly installed for Vite build..."
+          # Check if Rollup can be loaded
+          if ! node -e "require('rollup')" 2>/dev/null; then
+            echo "Rollup failed to load, applying fix..."
+            rm -rf node_modules package-lock.json
+            npm install
+            
+            # Verify the fix worked
+            if ! node -e "require('rollup')" 2>/dev/null; then
+              echo "Rollup still failing, trying alternative approach..."
+              npm install --force
+            fi
+          fi
+
+          # Final verification
+          if node -e "require('rollup')" 2>/dev/null; then
+            echo "✅ Rollup is working correctly"
+          else
+            echo "❌ Rollup still not working, but continuing..."
+          fi
+
       - name: Build project
-        run: npm run build
+        run: |
+          # Try to build, with fallback if Rollup issues persist
+          if ! npm run build; then
+            echo "Build failed, trying npm install fix and retry..."
+            rm -rf node_modules package-lock.json
+            npm install
+            npm run build
+          fi
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -245,8 +305,38 @@ jobs:
             npm install
           fi
 
+      - name: Fix Rollup binaries before build
+        run: |
+          echo "Ensuring Rollup binaries are properly installed for Vite build..."
+          # Check if Rollup can be loaded
+          if ! node -e "require('rollup')" 2>/dev/null; then
+            echo "Rollup failed to load, applying fix..."
+            rm -rf node_modules package-lock.json
+            npm install
+            
+            # Verify the fix worked
+            if ! node -e "require('rollup')" 2>/dev/null; then
+              echo "Rollup still failing, trying alternative approach..."
+              npm install --force
+            fi
+          fi
+
+          # Final verification
+          if node -e "require('rollup')" 2>/dev/null; then
+            echo "✅ Rollup is working correctly"
+          else
+            echo "❌ Rollup still not working, but continuing..."
+          fi
+
       - name: Build project
-        run: npm run build
+        run: |
+          # Try to build, with fallback if Rollup issues persist
+          if ! npm run build; then
+            echo "Build failed, trying npm install fix and retry..."
+            rm -rf node_modules package-lock.json
+            npm install
+            npm run build
+          fi
 
       - name: Extract version from package.json
         id: package-version
