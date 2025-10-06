@@ -2,7 +2,7 @@
 
 > **📖 TECHNICAL OVERVIEW**
 >
-> This document provides a high-level technical overview of how realtime collaboration can be implemented on top of Notefinity Core's end-to-end encryption infrastructure. The full implementation with code examples is available in the proprietary cloud service documentation.
+> This document provides a high-level explanation of how the proprietary realtime collaboration architecture it built on top of Notefinity Core's end-to-end encryption infrastructure and how it keeps its communication completely private.
 >
 > **For complete implementation details, see:** `/main/REALTIME_COLLABORATION_IMPLEMENTATION.md`
 
@@ -65,8 +65,8 @@ Client A ──encrypted ops──> Server ──encrypted ops──> Client B
    ↑                           ↓                         ↓
 Decrypt/Apply              Store Blobs              Decrypt/Apply
    ↓                           ↑                         ↑
-Yjs Document             No Decryption              Yjs Document
-(plaintext)               Capability                (plaintext)
+Yjs Document              No Decryption             Yjs Document
+(plaintext)                Capability               (plaintext)
 ```
 
 ## Core Infrastructure Requirements
