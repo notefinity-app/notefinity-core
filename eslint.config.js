@@ -61,6 +61,6 @@ export default [
     },
   },
   {
-    ignores: ['dist/**', 'coverage/**', 'node_modules/**'],
+    ignores: ['dist/**', 'coverage/**', 'client-dist/**', 'node_modules/**'],
   },
 ];

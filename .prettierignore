@@ -1,6 +1,7 @@
 # Build output
 dist/
 coverage/
+client-dist/
 node_modules/
 
 # Logs

@@ -31,6 +31,7 @@
     "test:ci": "vitest run --coverage --reporter=json --reporter=verbose",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
+    "precommit": "npm run format:check && npm run lint && npm run type-check",
     "format:list": "prettier --list-different \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
     "format:check-verbose": "echo 'Checking formatting for all TypeScript, JavaScript, JSON, Markdown, and YAML files...' && prettier --check --debug-check \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
     "deploy:caprover": "./self-hosting/caprover/deploy-caprover.sh",
