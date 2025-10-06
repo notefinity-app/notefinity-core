@@ -1,5 +1,12 @@
 # Notefinity Core (OSS)
 
+[![CI/CD Pipeline](https://github.com/notefinity-app/notefinity-core/actions/workflows/ci.yml/badge.svg)](https://github.com/notefinity-app/notefinity-core/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/notefinity-app/notefinity-core/branch/main/graph/badge.svg)](https://codecov.io/gh/notefinity-app/notefinity-core)
+[![npm version](https://badge.fury.io/js/@notefinity%2Fcore.svg)](https://badge.fury.io/js/@notefinity%2Fcore)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
+[![Test Coverage](https://img.shields.io/badge/coverage-76.08%25-brightgreen.svg)](https://github.com/notefinity-app/notefinity-core/actions/workflows/ci.yml)
+
 Open source core of Notefinity - A transparent, privacy-focused knowledge management system.
 
 ## 🎯 Transparency Promise
