@@ -26,6 +26,15 @@ The core server now serves both:
 2. **React SPA**: Static client files with SPA fallback routing
 3. **Plugin Extensions**: Proprietary features from the main project
 
+### Monorepo Structure
+
+This is part of a monorepo with two projects:
+
+- **core/**: Open-source backend (this project)
+- **main/**: Proprietary React frontend and premium features
+
+**Versioning Strategy**: Using hybrid independent versioning - Major.Minor coordinated for compatibility, patches independent. Automated via `npm run release:*` commands.
+
 ### Key Design Principles
 
 1. **User Data Isolation**: Each user's data is completely separated

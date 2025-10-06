@@ -28,6 +28,16 @@ This open-source core demonstrates **exactly** what our backend does, proving we
 - **JWT Authentication** - Secure token-based auth system
 - **RESTful API** - All endpoints under `/api/*` namespace
 - **Rate Limiting** - Protection against abuse and attacks
+
+## 🔄 Version Compatibility
+
+This project uses **hybrid versioning** for independent yet compatible releases:
+
+- **Core (Backend)**: v1.3.1 - This open-source server
+- **Main (Frontend)**: v1.3.1 - Proprietary React client
+
+**Compatibility**: Major.Minor versions are coordinated, patches are independent. Use `npm run release:status` to check compatibility. See [VERSION_STRATEGY.md](../VERSION_STRATEGY.md) for full strategy.
+
 - **CORS Configuration** - Secure cross-origin resource sharing
 
 ### Data Layer
