@@ -86,7 +86,7 @@ async createChildNode(parentId: string, nodeData: Partial<Page>, userId: string)
   if (parent.type === 'page') {
     throw new Error('Cannot create children under page nodes');
   }
-  
+
   // Create child with proper hierarchy
   const child = await this.createPage({
     ...nodeData,
@@ -94,12 +94,12 @@ async createChildNode(parentId: string, nodeData: Partial<Page>, userId: string)
     userId,
     position: parent.children?.length || 0
   });
-  
+
   // Update parent's children array
   parent.children = parent.children || [];
   parent.children.push(child._id);
   await this.updatePage(parent._id, { children: parent.children });
-  
+
   return child;
 }
 ```
