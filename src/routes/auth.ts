@@ -3,7 +3,12 @@ import Joi from 'joi';
 import { AuthService } from '../services/auth-service';
 import { DatabaseService } from '../services/database-service';
 import { Logger } from '../services/logger';
-import { RegisterData, LoginCredentials, ApiResponse, AuthUser } from '../types';
+import {
+  RegisterData,
+  LoginCredentials,
+  ApiResponse,
+  AuthUser,
+} from '../types';
 
 const registerSchema = Joi.object({
   name: Joi.string().min(2).max(100).required(),
@@ -24,73 +29,76 @@ export function authRoutes(
   const router = Router();
 
   // Register endpoint
-  router.post('/register', async (req: Request, res: Response): Promise<void> => {
-    try {
-      // Validate input
-      const { error, value } = registerSchema.validate(req.body);
-      if (error) {
-        res.status(400).json({
-          success: false,
-          error: 'Validation Error',
-          message: error.details[0].message,
-        } as ApiResponse);
-        return;
-      }
+  router.post(
+    '/register',
+    async (req: Request, res: Response): Promise<void> => {
+      try {
+        // Validate input
+        const { error, value } = registerSchema.validate(req.body);
+        if (error) {
+          res.status(400).json({
+            success: false,
+            error: 'Validation Error',
+            message: error.details[0].message,
+          } as ApiResponse);
+          return;
+        }
 
-      const { name, email, password }: RegisterData = value;
+        const { name, email, password }: RegisterData = value;
 
-      // Check if user already exists
-      const existingUser = await databaseService.getUserByEmail(email);
-      if (existingUser) {
-        res.status(409).json({
-          success: false,
-          error: 'Conflict',
-          message: 'User already exists with this email',
-        } as ApiResponse);
-        return;
-      }
+        // Check if user already exists
+        const existingUser = await databaseService.getUserByEmail(email);
+        if (existingUser) {
+          res.status(409).json({
+            success: false,
+            error: 'Conflict',
+            message: 'User already exists with this email',
+          } as ApiResponse);
+          return;
+        }
 
-      // Hash password
-      const passwordHash = await authService.hashPassword(password);
+        // Hash password
+        const passwordHash = await authService.hashPassword(password);
 
-      // Create user
-      const user = await databaseService.createUser({
-        name,
-        email,
-        passwordHash,
-      });
+        // Create user
+        const user = await databaseService.createUser({
+          name,
+          email,
+          passwordHash,
+        });
 
-      // Generate token
-      const authUser: AuthUser = {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-      };
-      const token = authService.generateToken(authUser);
+        // Generate token
+        const authUser: AuthUser = {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+        };
+        const token = authService.generateToken(authUser);
 
-      logger.log('info', `New user registered: ${email}`);
+        logger.log('info', `New user registered: ${email}`);
 
-      res.status(201).json({
-        success: true,
-        data: {
-          user: {
-            id: user._id,
-            name: user.name,
-            email: user.email,
+        res.status(201).json({
+          success: true,
+          data: {
+            user: {
+              id: user._id,
+              name: user.name,
+              email: user.email,
+            },
+            token,
           },
-          token,
-        },
-        message: 'User registered successfully',
-      } as ApiResponse);
-    } catch (error) {
-      logger.log('error', 'Registration error:', error);
-      res.status(500).json({
-        success: false,
-        error: 'Internal Server Error',
-        message: 'Failed to register user',
-      } as ApiResponse);
+          message: 'User registered successfully',
+        } as ApiResponse);
+      } catch (error) {
+        logger.log('error', 'Registration error:', error);
+        res.status(500).json({
+          success: false,
+          error: 'Internal Server Error',
+          message: 'Failed to register user',
+        } as ApiResponse);
+      }
     }
-  });
+  );
 
   // Login endpoint
   router.post('/login', async (req: Request, res: Response): Promise<void> => {
@@ -120,7 +128,10 @@ export function authRoutes(
       }
 
       // Verify password
-      const isValidPassword = await authService.comparePassword(password, user.passwordHash);
+      const isValidPassword = await authService.comparePassword(
+        password,
+        user.passwordHash
+      );
       if (!isValidPassword) {
         res.status(401).json({
           success: false,
@@ -168,7 +179,9 @@ export function authRoutes(
       // This route would typically be protected by auth middleware
       // For demonstration, we'll extract token manually here
       const authService_instance = authService;
-      const token = authService_instance.extractTokenFromHeader(req.headers.authorization);
+      const token = authService_instance.extractTokenFromHeader(
+        req.headers.authorization
+      );
 
       if (!token) {
         res.status(401).json({

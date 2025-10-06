@@ -41,7 +41,9 @@ export class NotefinityServer {
     this.app.use(helmet());
     this.app.use(
       cors({
-        origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'],
+        origin: process.env.ALLOWED_ORIGINS?.split(',') || [
+          'http://localhost:3000',
+        ],
         credentials: true,
       })
     );
@@ -80,7 +82,10 @@ export class NotefinityServer {
     });
 
     // API routes
-    this.app.use('/api/auth', authRoutes(this.authService, this.databaseService, this.logger));
+    this.app.use(
+      '/api/auth',
+      authRoutes(this.authService, this.databaseService, this.logger)
+    );
     this.app.use(
       '/api/pages',
       authMiddleware(this.authService),
@@ -113,13 +118,21 @@ export class NotefinityServer {
 
     // Global error handler
     this.app.use(
-      (err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+      (
+        err: Error,
+        req: express.Request,
+        res: express.Response,
+        next: express.NextFunction
+      ) => {
         this.logger.log('error', 'Unhandled error:', err);
 
         res.status(500).json({
           success: false,
           error: 'Internal Server Error',
-          message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong',
+          message:
+            process.env.NODE_ENV === 'development'
+              ? err.message
+              : 'Something went wrong',
         });
       }
     );
@@ -131,9 +144,18 @@ export class NotefinityServer {
       await this.databaseService.initialize();
 
       this.app.listen(port, () => {
-        this.logger.log('info', `Notefinity Core API server running on port ${port}`);
-        this.logger.log('info', `Health check available at: http://localhost:${port}/health`);
-        this.logger.log('info', `Environment: ${process.env.NODE_ENV || 'development'}`);
+        this.logger.log(
+          'info',
+          `Notefinity Core API server running on port ${port}`
+        );
+        this.logger.log(
+          'info',
+          `Health check available at: http://localhost:${port}/health`
+        );
+        this.logger.log(
+          'info',
+          `Environment: ${process.env.NODE_ENV || 'development'}`
+        );
       });
     } catch (error) {
       this.logger.log('error', 'Failed to start server:', error);

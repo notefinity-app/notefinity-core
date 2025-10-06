@@ -20,7 +20,11 @@ export class PluginManager {
       } catch {
         // Plugins directory doesn't exist, create it
         await fs.mkdir(pluginsDir, { recursive: true });
-        this.context.logger.log('info', 'Created plugins directory at:', pluginsDir);
+        this.context.logger.log(
+          'info',
+          'Created plugins directory at:',
+          pluginsDir
+        );
 
         // Create a sample plugin file for demonstration
         await this.createSamplePlugin(pluginsDir);
@@ -29,17 +33,26 @@ export class PluginManager {
 
       // Load plugins from directory
       const files = await fs.readdir(pluginsDir);
-      const pluginFiles = files.filter(file => file.endsWith('.js') || file.endsWith('.ts'));
+      const pluginFiles = files.filter(
+        (file) => file.endsWith('.js') || file.endsWith('.ts')
+      );
 
       for (const file of pluginFiles) {
         try {
           await this.loadPlugin(path.join(pluginsDir, file));
         } catch (error) {
-          this.context.logger.log('error', `Failed to load plugin ${file}:`, error);
+          this.context.logger.log(
+            'error',
+            `Failed to load plugin ${file}:`,
+            error
+          );
         }
       }
 
-      this.context.logger.log('info', `Loaded ${this.loadedPlugins.size} plugins`);
+      this.context.logger.log(
+        'info',
+        `Loaded ${this.loadedPlugins.size} plugins`
+      );
     } catch (error) {
       this.context.logger.log('error', 'Failed to load plugins:', error);
     }
@@ -57,7 +70,10 @@ export class PluginManager {
 
       // Check if plugin is enabled
       if (!plugin.enabled) {
-        this.context.logger.log('info', `Plugin ${plugin.name} is disabled, skipping`);
+        this.context.logger.log(
+          'info',
+          `Plugin ${plugin.name} is disabled, skipping`
+        );
         return;
       }
 
@@ -89,7 +105,10 @@ export class PluginManager {
               break;
           }
 
-          this.context.logger.log('info', `Registered plugin route: ${route.method} ${route.path}`);
+          this.context.logger.log(
+            'info',
+            `Registered plugin route: ${route.method} ${route.path}`
+          );
         }
       }
 
@@ -97,7 +116,10 @@ export class PluginManager {
       if (plugin.middleware) {
         for (const middleware of plugin.middleware) {
           this.context.app.use(middleware.handler);
-          this.context.logger.log('info', `Registered plugin middleware: ${middleware.name}`);
+          this.context.logger.log(
+            'info',
+            `Registered plugin middleware: ${middleware.name}`
+          );
         }
       }
 
@@ -228,7 +250,10 @@ that operate on the same transparent, auditable codebase.
 `;
 
     await fs.writeFile(readmePath, readmeContent);
-    this.context.logger.log('info', 'Created sample plugin and documentation in plugins directory');
+    this.context.logger.log(
+      'info',
+      'Created sample plugin and documentation in plugins directory'
+    );
   }
 
   getLoadedPlugins(): Plugin[] {

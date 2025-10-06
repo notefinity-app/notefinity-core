@@ -17,7 +17,7 @@ vi.mock('fs', () => ({
 vi.mock('path', () => ({
   default: {
     join: vi.fn((...args) => args.join('/')),
-    extname: vi.fn(filename => filename.split('.').pop() || ''),
+    extname: vi.fn((filename) => filename.split('.').pop() || ''),
   },
 }));
 
@@ -60,9 +60,12 @@ describe('PluginManager', () => {
 
       await pluginManager.loadPlugins();
 
-      expect(fs.mkdir).toHaveBeenCalledWith(expect.stringContaining('plugins'), {
-        recursive: true,
-      });
+      expect(fs.mkdir).toHaveBeenCalledWith(
+        expect.stringContaining('plugins'),
+        {
+          recursive: true,
+        }
+      );
       expect(mockContext.logger.log).toHaveBeenCalledWith(
         'info',
         'Created plugins directory at:',
@@ -90,7 +93,11 @@ describe('PluginManager', () => {
 
     it('should load plugin files from existing directory', async () => {
       (fs.access as any).mockResolvedValue(undefined);
-      (fs.readdir as any).mockResolvedValue(['plugin1.js', 'plugin2.ts', 'readme.txt']);
+      (fs.readdir as any).mockResolvedValue([
+        'plugin1.js',
+        'plugin2.ts',
+        'readme.txt',
+      ]);
 
       // Mock dynamic import with global mock
       const mockImport = vi.fn();
@@ -115,7 +122,9 @@ describe('PluginManager', () => {
 
       await pluginManager.loadPlugins();
 
-      expect(fs.readdir).toHaveBeenCalledWith(expect.stringContaining('plugins'));
+      expect(fs.readdir).toHaveBeenCalledWith(
+        expect.stringContaining('plugins')
+      );
       expect(mockContext.logger.log).toHaveBeenCalledWith(
         'info',
         expect.stringContaining('Loaded')
@@ -147,7 +156,9 @@ describe('PluginManager', () => {
 
       await pluginManager.loadPlugins();
 
-      expect(fs.readdir).toHaveBeenCalledWith(expect.stringContaining('plugins'));
+      expect(fs.readdir).toHaveBeenCalledWith(
+        expect.stringContaining('plugins')
+      );
       expect(mockContext.logger.log).toHaveBeenCalledWith(
         'info',
         expect.stringContaining('Loaded')

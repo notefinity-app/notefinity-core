@@ -37,13 +37,15 @@ describe('End-to-End Encryption Support', () => {
       };
 
       // Mock the database operations
-      const mockCreatePage = vi.spyOn(databaseService, 'createPage').mockResolvedValue({
-        _id: 'page_123',
-        _rev: '1-abc',
-        ...pageData,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      } as Page);
+      const mockCreatePage = vi
+        .spyOn(databaseService, 'createPage')
+        .mockResolvedValue({
+          _id: 'page_123',
+          _rev: '1-abc',
+          ...pageData,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        } as Page);
 
       const createdPage = await databaseService.createPage(pageData);
 
@@ -67,13 +69,15 @@ describe('End-to-End Encryption Support', () => {
       };
 
       // Mock the database operations
-      const mockCreatePage = vi.spyOn(databaseService, 'createPage').mockResolvedValue({
-        _id: 'page_124',
-        _rev: '1-def',
-        ...pageData,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      } as Page);
+      const mockCreatePage = vi
+        .spyOn(databaseService, 'createPage')
+        .mockResolvedValue({
+          _id: 'page_124',
+          _rev: '1-def',
+          ...pageData,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        } as Page);
 
       const createdPage = await databaseService.createPage(pageData);
 
@@ -98,21 +102,25 @@ describe('End-to-End Encryption Support', () => {
       };
 
       // Mock the database operations
-      const mockStorePublicKey = vi.spyOn(databaseService, 'storeUserPublicKey').mockResolvedValue({
-        _id: 'key_123',
-        _rev: '1-abc',
-        ...publicKeyData,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      } as UserPublicKey);
+      const mockStorePublicKey = vi
+        .spyOn(databaseService, 'storeUserPublicKey')
+        .mockResolvedValue({
+          _id: 'key_123',
+          _rev: '1-abc',
+          ...publicKeyData,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        } as UserPublicKey);
 
-      const mockGetPublicKey = vi.spyOn(databaseService, 'getUserPublicKey').mockResolvedValue({
-        _id: 'key_123',
-        _rev: '1-abc',
-        ...publicKeyData,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      } as UserPublicKey);
+      const mockGetPublicKey = vi
+        .spyOn(databaseService, 'getUserPublicKey')
+        .mockResolvedValue({
+          _id: 'key_123',
+          _rev: '1-abc',
+          ...publicKeyData,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        } as UserPublicKey);
 
       const storedKey = await databaseService.storeUserPublicKey(publicKeyData);
       expect(storedKey.publicKey).toBe(publicKeyData.publicKey);
@@ -132,7 +140,8 @@ describe('End-to-End Encryption Support', () => {
         .spyOn(databaseService, 'getUserPublicKey')
         .mockResolvedValue(null);
 
-      const retrievedKey = await databaseService.getUserPublicKey('nonexistent-user');
+      const retrievedKey =
+        await databaseService.getUserPublicKey('nonexistent-user');
       expect(retrievedKey).toBeNull();
 
       mockGetPublicKey.mockRestore();

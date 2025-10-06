@@ -421,7 +421,13 @@ const pageManager = new PageManager();
 const space = pageManager.createPage('My Workspace', '', 'user123', 'space');
 
 // Create a folder in the space
-const folder = pageManager.createPage('Documents', '', 'user123', 'folder', space._id);
+const folder = pageManager.createPage(
+  'Documents',
+  '',
+  'user123',
+  'folder',
+  space._id
+);
 
 // Create a page in the folder
 const page = pageManager.createPage(
@@ -638,7 +644,7 @@ class ExtendedPageManager extends PageManager {
     const page = super.createPage(title, content, userId, type, parentId);
 
     // Call plugin hooks
-    this.plugins.forEach(plugin => {
+    this.plugins.forEach((plugin) => {
       if (plugin.onPageCreated) {
         plugin.onPageCreated(page);
       }

@@ -4,7 +4,10 @@ import { Logger, LogLevel } from './types';
 export class ConsoleLogger implements Logger {
   log(level: LogLevel, message: string, ...args: any[]): void {
     const timestamp = new Date().toISOString();
-    console[level](`[${timestamp}] ${level.toUpperCase()}: ${message}`, ...args);
+    console[level](
+      `[${timestamp}] ${level.toUpperCase()}: ${message}`,
+      ...args
+    );
   }
 }
 

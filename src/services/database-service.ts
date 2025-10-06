@@ -1,5 +1,10 @@
 import nano from 'nano';
-import { DatabaseService as IDatabaseService, Page, User, UserPublicKey } from '../types';
+import {
+  DatabaseService as IDatabaseService,
+  Page,
+  User,
+  UserPublicKey,
+} from '../types';
 
 export class DatabaseService implements IDatabaseService {
   private db: nano.ServerScope;
@@ -8,7 +13,8 @@ export class DatabaseService implements IDatabaseService {
   private keystoreDb!: nano.DocumentScope<UserPublicKey>;
 
   constructor() {
-    const couchDbUrl = process.env.COUCHDB_URL || 'http://admin:password@localhost:5984';
+    const couchDbUrl =
+      process.env.COUCHDB_URL || 'http://admin:password@localhost:5984';
     this.db = nano(couchDbUrl);
   }
 
@@ -155,7 +161,11 @@ export class DatabaseService implements IDatabaseService {
     }
   }
 
-  async updatePage(id: string, userId: string, updates: Partial<Page>): Promise<Page> {
+  async updatePage(
+    id: string,
+    userId: string,
+    updates: Partial<Page>
+  ): Promise<Page> {
     try {
       const existingPage = await this.getPageById(id, userId);
       if (!existingPage) {
@@ -201,8 +211,12 @@ export class DatabaseService implements IDatabaseService {
       if (page.parentId) {
         const parent = await this.getPageById(page.parentId, userId);
         if (parent && parent.children) {
-          parent.children = parent.children.filter(childId => childId !== page._id);
-          await this.updatePage(parent._id, userId, { children: parent.children });
+          parent.children = parent.children.filter(
+            (childId) => childId !== page._id
+          );
+          await this.updatePage(parent._id, userId, {
+            children: parent.children,
+          });
         }
       }
 
@@ -265,8 +279,12 @@ export class DatabaseService implements IDatabaseService {
       if (node.parentId) {
         const oldParent = await this.getPageById(node.parentId, userId);
         if (oldParent && oldParent.children) {
-          oldParent.children = oldParent.children.filter(childId => childId !== nodeId);
-          await this.updatePage(oldParent._id, userId, { children: oldParent.children });
+          oldParent.children = oldParent.children.filter(
+            (childId) => childId !== nodeId
+          );
+          await this.updatePage(oldParent._id, userId, {
+            children: oldParent.children,
+          });
         }
       }
 
@@ -361,7 +379,10 @@ export class DatabaseService implements IDatabaseService {
   }
 
   async storeUserPublicKey(
-    keystoreData: Omit<UserPublicKey, '_id' | '_rev' | 'createdAt' | 'updatedAt'>
+    keystoreData: Omit<
+      UserPublicKey,
+      '_id' | '_rev' | 'createdAt' | 'updatedAt'
+    >
   ): Promise<UserPublicKey> {
     const now = new Date();
     const keystore: UserPublicKey = {

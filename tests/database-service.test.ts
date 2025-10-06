@@ -104,7 +104,9 @@ describe('DatabaseService Unit Tests', () => {
     it('should return null for non-existent user', async () => {
       mockDb.find.mockResolvedValue({ docs: [] });
 
-      const result = await databaseService.getUserByEmail('nonexistent@example.com');
+      const result = await databaseService.getUserByEmail(
+        'nonexistent@example.com'
+      );
 
       expect(result).toBeNull();
     });
@@ -225,7 +227,10 @@ describe('DatabaseService Unit Tests', () => {
 
       mockDb.find.mockResolvedValue(mockChildren);
 
-      const result = await databaseService.getChildNodes('parent123', 'user123');
+      const result = await databaseService.getChildNodes(
+        'parent123',
+        'user123'
+      );
 
       expect(mockDb.find).toHaveBeenCalledWith({
         selector: {
@@ -254,7 +259,9 @@ describe('DatabaseService Unit Tests', () => {
       mockDb.get.mockResolvedValue(mockExistingPage);
       mockDb.insert.mockResolvedValue({ id: 'page123', rev: '2-def' });
 
-      const result = await databaseService.updatePage('page123', 'user123', { title: 'New Title' });
+      const result = await databaseService.updatePage('page123', 'user123', {
+        title: 'New Title',
+      });
 
       expect(mockDb.get).toHaveBeenCalledWith('page123');
       expect(mockDb.insert).toHaveBeenCalled();
@@ -371,7 +378,12 @@ describe('DatabaseService Unit Tests', () => {
       mockDb.get.mockResolvedValue(mockExistingNode);
       mockDb.insert.mockResolvedValue({ id: 'node123', rev: '2-def' });
 
-      const result = await databaseService.moveNode('node123', 'newparent', 2, 'user123');
+      const result = await databaseService.moveNode(
+        'node123',
+        'newparent',
+        2,
+        'user123'
+      );
 
       expect(mockDb.get).toHaveBeenCalledWith('node123');
       expect(mockDb.insert).toHaveBeenCalled();
@@ -454,7 +466,9 @@ describe('DatabaseService Unit Tests', () => {
       mockDb.find.mockResolvedValue({ docs: [mockExistingKey] });
       mockDb.insert.mockResolvedValue({ id: 'keystore123', rev: '2-def' });
 
-      const result = await databaseService.updateUserPublicKey('user123', { publicKey: 'new-key' });
+      const result = await databaseService.updateUserPublicKey('user123', {
+        publicKey: 'new-key',
+      });
 
       expect(result.publicKey).toBe('new-key');
     });
@@ -464,13 +478,21 @@ describe('DatabaseService Unit Tests', () => {
     it('should handle CouchDB connection errors', async () => {
       mockDb.get.mockRejectedValue(new Error('Connection failed'));
 
-      await expect(databaseService.getPageById('page123', 'user123')).rejects.toThrow();
+      await expect(
+        databaseService.getPageById('page123', 'user123')
+      ).rejects.toThrow();
     });
 
     it('should handle document not found errors', async () => {
-      mockDb.get.mockRejectedValue({ statusCode: 404, message: 'Document not found' });
+      mockDb.get.mockRejectedValue({
+        statusCode: 404,
+        message: 'Document not found',
+      });
 
-      const result = await databaseService.getPageById('nonexistent', 'user123');
+      const result = await databaseService.getPageById(
+        'nonexistent',
+        'user123'
+      );
       expect(result).toBeNull();
     });
 

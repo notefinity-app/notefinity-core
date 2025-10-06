@@ -45,7 +45,10 @@ describe('Pages Routes', () => {
       next();
     });
 
-    app.use('/pages', pagesRoutes(mockDatabaseService as DatabaseService, mockLogger as Logger));
+    app.use(
+      '/pages',
+      pagesRoutes(mockDatabaseService as DatabaseService, mockLogger as Logger)
+    );
 
     // Clear all mocks
     vi.clearAllMocks();
@@ -73,17 +76,25 @@ describe('Pages Routes', () => {
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(response.body.data.pages).toHaveLength(1);
-      expect(mockDatabaseService.getPagesByUser).toHaveBeenCalledWith('user123');
+      expect(mockDatabaseService.getPagesByUser).toHaveBeenCalledWith(
+        'user123'
+      );
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockDatabaseService.getPagesByUser as any).mockRejectedValue(new Error('Database error'));
+      (mockDatabaseService.getPagesByUser as any).mockRejectedValue(
+        new Error('Database error')
+      );
 
       const response = await request(app).get('/pages');
 
       expect(response.status).toBe(500);
       expect(response.body.success).toBe(false);
-      expect(mockLogger.log).toHaveBeenCalledWith('error', 'Get pages error:', expect.any(Error));
+      expect(mockLogger.log).toHaveBeenCalledWith(
+        'error',
+        'Get pages error:',
+        expect.any(Error)
+      );
     });
   });
 
@@ -107,7 +118,9 @@ describe('Pages Routes', () => {
         updatedAt: new Date(),
       };
 
-      (mockDatabaseService.createPage as any).mockResolvedValue(mockCreatedPage);
+      (mockDatabaseService.createPage as any).mockResolvedValue(
+        mockCreatedPage
+      );
 
       const response = await request(app).post('/pages').send(validPageData);
 
@@ -158,9 +171,13 @@ describe('Pages Routes', () => {
         updatedAt: new Date(),
       };
 
-      (mockDatabaseService.createPage as any).mockResolvedValue(mockCreatedPage);
+      (mockDatabaseService.createPage as any).mockResolvedValue(
+        mockCreatedPage
+      );
 
-      const response = await request(app).post('/pages').send(encryptedPageData);
+      const response = await request(app)
+        .post('/pages')
+        .send(encryptedPageData);
 
       expect(response.status).toBe(201);
       expect(response.body.success).toBe(true);
@@ -168,7 +185,9 @@ describe('Pages Routes', () => {
     });
 
     it('should handle database errors during creation', async () => {
-      (mockDatabaseService.createPage as any).mockRejectedValue(new Error('Database error'));
+      (mockDatabaseService.createPage as any).mockRejectedValue(
+        new Error('Database error')
+      );
 
       const response = await request(app).post('/pages').send(validPageData);
 
@@ -196,7 +215,10 @@ describe('Pages Routes', () => {
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(response.body.data.page.id).toBe('page123');
-      expect(mockDatabaseService.getPageById).toHaveBeenCalledWith('page123', 'user123');
+      expect(mockDatabaseService.getPageById).toHaveBeenCalledWith(
+        'page123',
+        'user123'
+      );
     });
 
     it('should return 404 for non-existent page', async () => {
@@ -210,7 +232,9 @@ describe('Pages Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockDatabaseService.getPageById as any).mockRejectedValue(new Error('Database error'));
+      (mockDatabaseService.getPageById as any).mockRejectedValue(
+        new Error('Database error')
+      );
 
       const response = await request(app).get('/pages/page123');
 
@@ -235,14 +259,22 @@ describe('Pages Routes', () => {
         updatedAt: new Date(),
       };
 
-      (mockDatabaseService.updatePage as any).mockResolvedValue(mockUpdatedPage);
+      (mockDatabaseService.updatePage as any).mockResolvedValue(
+        mockUpdatedPage
+      );
 
-      const response = await request(app).put('/pages/page123').send(updateData);
+      const response = await request(app)
+        .put('/pages/page123')
+        .send(updateData);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(response.body.data.page.id).toBe('page123');
-      expect(mockDatabaseService.updatePage).toHaveBeenCalledWith('page123', 'user123', updateData);
+      expect(mockDatabaseService.updatePage).toHaveBeenCalledWith(
+        'page123',
+        'user123',
+        updateData
+      );
     });
 
     it('should return validation error for invalid update data', async () => {
@@ -251,7 +283,9 @@ describe('Pages Routes', () => {
         position: -1, // Invalid position
       };
 
-      const response = await request(app).put('/pages/page123').send(invalidData);
+      const response = await request(app)
+        .put('/pages/page123')
+        .send(invalidData);
 
       expect(response.status).toBe(400);
       expect(response.body.success).toBe(false);
@@ -262,7 +296,9 @@ describe('Pages Routes', () => {
         new Error('Page not found or access denied')
       );
 
-      const response = await request(app).put('/pages/nonexistent').send(updateData);
+      const response = await request(app)
+        .put('/pages/nonexistent')
+        .send(updateData);
 
       expect(response.status).toBe(404);
       expect(response.body.success).toBe(false);
@@ -278,7 +314,10 @@ describe('Pages Routes', () => {
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(response.body.message).toBe('Page deleted successfully');
-      expect(mockDatabaseService.deletePage).toHaveBeenCalledWith('page123', 'user123');
+      expect(mockDatabaseService.deletePage).toHaveBeenCalledWith(
+        'page123',
+        'user123'
+      );
     });
 
     it('should return 404 for non-existent page', async () => {
@@ -291,7 +330,9 @@ describe('Pages Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockDatabaseService.deletePage as any).mockRejectedValue(new Error('Database error'));
+      (mockDatabaseService.deletePage as any).mockRejectedValue(
+        new Error('Database error')
+      );
 
       const response = await request(app).delete('/pages/page123');
 
@@ -311,14 +352,18 @@ describe('Pages Routes', () => {
         },
       ];
 
-      (mockDatabaseService.getSpacesByUser as any).mockResolvedValue(mockSpaces);
+      (mockDatabaseService.getSpacesByUser as any).mockResolvedValue(
+        mockSpaces
+      );
 
       const response = await request(app).get('/pages/spaces');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(response.body.data.spaces).toHaveLength(1);
-      expect(mockDatabaseService.getSpacesByUser).toHaveBeenCalledWith('user123');
+      expect(mockDatabaseService.getSpacesByUser).toHaveBeenCalledWith(
+        'user123'
+      );
     });
   });
 
@@ -332,13 +377,18 @@ describe('Pages Routes', () => {
         },
       ];
 
-      (mockDatabaseService.getChildNodes as any).mockResolvedValue(mockChildren);
+      (mockDatabaseService.getChildNodes as any).mockResolvedValue(
+        mockChildren
+      );
 
       const response = await request(app).get('/pages/parent123/children');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(mockDatabaseService.getChildNodes).toHaveBeenCalledWith('parent123', 'user123');
+      expect(mockDatabaseService.getChildNodes).toHaveBeenCalledWith(
+        'parent123',
+        'user123'
+      );
     });
   });
 
@@ -357,7 +407,9 @@ describe('Pages Routes', () => {
 
       (mockDatabaseService.moveNode as any).mockResolvedValue(mockMovedPage);
 
-      const response = await request(app).patch('/pages/page123/move').send(moveData);
+      const response = await request(app)
+        .patch('/pages/page123/move')
+        .send(moveData);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -374,7 +426,9 @@ describe('Pages Routes', () => {
         position: -1, // Invalid position
       };
 
-      const response = await request(app).patch('/pages/page123/move').send(invalidData);
+      const response = await request(app)
+        .patch('/pages/page123/move')
+        .send(invalidData);
 
       expect(response.status).toBe(400);
       expect(response.body.success).toBe(false);
@@ -396,11 +450,16 @@ describe('Pages Routes', () => {
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(response.body.data.path).toHaveLength(3);
-      expect(mockDatabaseService.getNodePath).toHaveBeenCalledWith('page1', 'user123');
+      expect(mockDatabaseService.getNodePath).toHaveBeenCalledWith(
+        'page1',
+        'user123'
+      );
     });
 
     it('should handle errors when getting path', async () => {
-      (mockDatabaseService.getNodePath as any).mockRejectedValue(new Error('Database error'));
+      (mockDatabaseService.getNodePath as any).mockRejectedValue(
+        new Error('Database error')
+      );
 
       const response = await request(app).get('/pages/page1/path');
 

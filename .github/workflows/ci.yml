@@ -45,8 +45,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run linting
-        run: npm run format:check
+      - name: Check code formatting
+        run: |
+          echo "Checking code formatting with Prettier..."
+          if ! npm run format:check; then
+            echo "❌ Code formatting check failed!"
+            echo "💡 To fix locally, run: npm run format"
+            echo "📋 Files that need formatting:"
+            npm run format:check 2>&1 | grep -E '\.(ts|js|json|md|yml|yaml)$' || true
+            exit 1
+          fi
+          echo "✅ All files are properly formatted!"
 
       - name: Build project
         run: npm run build

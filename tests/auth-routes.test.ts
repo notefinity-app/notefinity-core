@@ -55,7 +55,9 @@ describe('Auth Routes', () => {
     it('should register a new user successfully', async () => {
       // Setup mocks
       (mockDatabaseService.getUserByEmail as any).mockResolvedValue(null);
-      (mockAuthService.hashPassword as any).mockResolvedValue('hashed-password');
+      (mockAuthService.hashPassword as any).mockResolvedValue(
+        'hashed-password'
+      );
       (mockDatabaseService.createUser as any).mockResolvedValue({
         _id: 'user123',
         name: 'John Doe',
@@ -64,7 +66,9 @@ describe('Auth Routes', () => {
       });
       (mockAuthService.generateToken as any).mockReturnValue('jwt-token');
 
-      const response = await request(app).post('/auth/register').send(validRegistrationData);
+      const response = await request(app)
+        .post('/auth/register')
+        .send(validRegistrationData);
 
       expect(response.status).toBe(201);
       expect(response.body).toEqual({
@@ -80,7 +84,9 @@ describe('Auth Routes', () => {
         message: 'User registered successfully',
       });
 
-      expect(mockDatabaseService.getUserByEmail).toHaveBeenCalledWith('john@example.com');
+      expect(mockDatabaseService.getUserByEmail).toHaveBeenCalledWith(
+        'john@example.com'
+      );
       expect(mockAuthService.hashPassword).toHaveBeenCalledWith('password123');
       expect(mockDatabaseService.createUser).toHaveBeenCalledWith({
         name: 'John Doe',
@@ -96,7 +102,9 @@ describe('Auth Routes', () => {
         password: '123', // Too short
       };
 
-      const response = await request(app).post('/auth/register').send(invalidData);
+      const response = await request(app)
+        .post('/auth/register')
+        .send(invalidData);
 
       expect(response.status).toBe(400);
       expect(response.body.success).toBe(false);
@@ -117,7 +125,9 @@ describe('Auth Routes', () => {
         email: 'john@example.com',
       });
 
-      const response = await request(app).post('/auth/register').send(validRegistrationData);
+      const response = await request(app)
+        .post('/auth/register')
+        .send(validRegistrationData);
 
       expect(response.status).toBe(409);
       expect(response.body).toEqual({
@@ -128,9 +138,13 @@ describe('Auth Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockDatabaseService.getUserByEmail as any).mockRejectedValue(new Error('Database error'));
+      (mockDatabaseService.getUserByEmail as any).mockRejectedValue(
+        new Error('Database error')
+      );
 
-      const response = await request(app).post('/auth/register').send(validRegistrationData);
+      const response = await request(app)
+        .post('/auth/register')
+        .send(validRegistrationData);
 
       expect(response.status).toBe(500);
       expect(response.body.success).toBe(false);
@@ -144,9 +158,13 @@ describe('Auth Routes', () => {
 
     it('should handle password hashing errors', async () => {
       (mockDatabaseService.getUserByEmail as any).mockResolvedValue(null);
-      (mockAuthService.hashPassword as any).mockRejectedValue(new Error('Hashing error'));
+      (mockAuthService.hashPassword as any).mockRejectedValue(
+        new Error('Hashing error')
+      );
 
-      const response = await request(app).post('/auth/register').send(validRegistrationData);
+      const response = await request(app)
+        .post('/auth/register')
+        .send(validRegistrationData);
 
       expect(response.status).toBe(500);
       expect(response.body.success).toBe(false);
@@ -171,7 +189,9 @@ describe('Auth Routes', () => {
       (mockAuthService.comparePassword as any).mockResolvedValue(true);
       (mockAuthService.generateToken as any).mockReturnValue('jwt-token');
 
-      const response = await request(app).post('/auth/login').send(validLoginData);
+      const response = await request(app)
+        .post('/auth/login')
+        .send(validLoginData);
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual({
@@ -207,7 +227,9 @@ describe('Auth Routes', () => {
     });
 
     it('should return validation error for missing fields', async () => {
-      const response = await request(app).post('/auth/login').send({ email: 'test@example.com' }); // Missing password
+      const response = await request(app)
+        .post('/auth/login')
+        .send({ email: 'test@example.com' }); // Missing password
 
       expect(response.status).toBe(400);
       expect(response.body.success).toBe(false);
@@ -216,7 +238,9 @@ describe('Auth Routes', () => {
     it('should return unauthorized for non-existent user', async () => {
       (mockDatabaseService.getUserByEmail as any).mockResolvedValue(null);
 
-      const response = await request(app).post('/auth/login').send(validLoginData);
+      const response = await request(app)
+        .post('/auth/login')
+        .send(validLoginData);
 
       expect(response.status).toBe(401);
       expect(response.body).toEqual({
@@ -236,7 +260,9 @@ describe('Auth Routes', () => {
       (mockDatabaseService.getUserByEmail as any).mockResolvedValue(mockUser);
       (mockAuthService.comparePassword as any).mockResolvedValue(false);
 
-      const response = await request(app).post('/auth/login').send(validLoginData);
+      const response = await request(app)
+        .post('/auth/login')
+        .send(validLoginData);
 
       expect(response.status).toBe(401);
       expect(response.body).toEqual({
@@ -247,13 +273,21 @@ describe('Auth Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockDatabaseService.getUserByEmail as any).mockRejectedValue(new Error('Database error'));
+      (mockDatabaseService.getUserByEmail as any).mockRejectedValue(
+        new Error('Database error')
+      );
 
-      const response = await request(app).post('/auth/login').send(validLoginData);
+      const response = await request(app)
+        .post('/auth/login')
+        .send(validLoginData);
 
       expect(response.status).toBe(500);
       expect(response.body.success).toBe(false);
-      expect(mockLogger.log).toHaveBeenCalledWith('error', 'Login error:', expect.any(Error));
+      expect(mockLogger.log).toHaveBeenCalledWith(
+        'error',
+        'Login error:',
+        expect.any(Error)
+      );
     });
 
     it('should handle password comparison errors', async () => {
@@ -264,9 +298,13 @@ describe('Auth Routes', () => {
       };
 
       (mockDatabaseService.getUserByEmail as any).mockResolvedValue(mockUser);
-      (mockAuthService.comparePassword as any).mockRejectedValue(new Error('Comparison error'));
+      (mockAuthService.comparePassword as any).mockRejectedValue(
+        new Error('Comparison error')
+      );
 
-      const response = await request(app).post('/auth/login').send(validLoginData);
+      const response = await request(app)
+        .post('/auth/login')
+        .send(validLoginData);
 
       expect(response.status).toBe(500);
       expect(response.body.success).toBe(false);

@@ -13,7 +13,10 @@ const plugin = {
     context.logger.log('info', 'Notefinity Premium Plugin initialized');
 
     // Initialize premium extension with core services
-    this.premiumExtension = new PremiumExtension(context.database, context.logger);
+    this.premiumExtension = new PremiumExtension(
+      context.database,
+      context.logger
+    );
     this.context = context;
   },
 
@@ -43,18 +46,20 @@ const plugin = {
           }
 
           // Get user's pages and perform AI search
-          const pages = await plugin.context.database.getPagesByUser(req.user.userId);
+          const pages = await plugin.context.database.getPagesByUser(
+            req.user.userId
+          );
 
           // Mock AI processing - in reality, this would call AI services
           const aiResults = pages
-            .filter(page => {
+            .filter((page) => {
               const content = (page.title + ' ' + page.content).toLowerCase();
               return (
                 content.includes(query.toLowerCase()) ||
                 content.match(new RegExp(query.split(' ').join('|'), 'i'))
               );
             })
-            .map(page => ({
+            .map((page) => ({
               id: page._id,
               title: page.title,
               content: page.content.substring(0, 200) + '...',
@@ -96,7 +101,10 @@ const plugin = {
           }
 
           const { noteId } = req.params;
-          const page = await plugin.context.database.getPageById(noteId, req.user.userId);
+          const page = await plugin.context.database.getPageById(
+            noteId,
+            req.user.userId
+          );
 
           if (!page) {
             return res.status(404).json({
@@ -111,16 +119,23 @@ const plugin = {
           const categories = [];
 
           // Simple keyword-based categorization (mock AI)
-          if (content.match(/meeting|call|agenda/i)) categories.push('meetings');
+          if (content.match(/meeting|call|agenda/i))
+            categories.push('meetings');
           if (content.match(/todo|task|deadline/i)) categories.push('tasks');
-          if (content.match(/idea|inspiration|brainstorm/i)) categories.push('ideas');
-          if (content.match(/personal|family|home/i)) categories.push('personal');
+          if (content.match(/idea|inspiration|brainstorm/i))
+            categories.push('ideas');
+          if (content.match(/personal|family|home/i))
+            categories.push('personal');
           if (content.match(/work|project|business/i)) categories.push('work');
 
           // Update page with AI-suggested categories
-          const updatedPage = await plugin.context.database.updatePage(noteId, req.user.userId, {
-            tags: [...(page.tags || []), ...categories],
-          });
+          const updatedPage = await plugin.context.database.updatePage(
+            noteId,
+            req.user.userId,
+            {
+              tags: [...(page.tags || []), ...categories],
+            }
+          );
 
           res.json({
             success: true,
@@ -169,7 +184,10 @@ const plugin = {
             });
           }
 
-          const page = await plugin.context.database.getPageById(noteId, req.user.userId);
+          const page = await plugin.context.database.getPageById(
+            noteId,
+            req.user.userId
+          );
 
           if (!page) {
             return res.status(404).json({
@@ -214,7 +232,10 @@ const plugin = {
           }
 
           res.setHeader('Content-Type', mimeType);
-          res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+          res.setHeader(
+            'Content-Disposition',
+            `attachment; filename="${filename}"`
+          );
           res.send(exportContent);
         } catch (error) {
           plugin.context.logger.log('error', 'Export error:', error);
@@ -240,7 +261,9 @@ const plugin = {
             });
           }
 
-          const pages = await plugin.context.database.getPagesByUser(req.user.userId);
+          const pages = await plugin.context.database.getPagesByUser(
+            req.user.userId
+          );
 
           // Calculate analytics
           const analytics = {
@@ -250,8 +273,10 @@ const plugin = {
             }, 0),
             averageWordsPerPage: pages.length
               ? Math.round(
-                  pages.reduce((sum, page) => sum + page.content.split(/\s+/).length, 0) /
-                    pages.length
+                  pages.reduce(
+                    (sum, page) => sum + page.content.split(/\s+/).length,
+                    0
+                  ) / pages.length
                 )
               : 0,
             mostUsedTags: this.getMostUsedTags(pages),
@@ -279,8 +304,8 @@ const plugin = {
   // Helper methods
   getMostUsedTags(pages) {
     const tagCounts = {};
-    pages.forEach(page => {
-      (page.tags || []).forEach(tag => {
+    pages.forEach((page) => {
+      (page.tags || []).forEach((tag) => {
         tagCounts[tag] = (tagCounts[tag] || 0) + 1;
       });
     });
@@ -295,9 +320,11 @@ const plugin = {
     const thisMonth = new Date().getMonth();
     const thisYear = new Date().getFullYear();
 
-    return pages.filter(page => {
+    return pages.filter((page) => {
       const pageDate = new Date(page.createdAt);
-      return pageDate.getMonth() === thisMonth && pageDate.getFullYear() === thisYear;
+      return (
+        pageDate.getMonth() === thisMonth && pageDate.getFullYear() === thisYear
+      );
     }).length;
   },
 
@@ -306,7 +333,8 @@ const plugin = {
 
     // Sort pages by date
     const sortedPages = pages.sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
 
     let streak = 0;
@@ -333,10 +361,14 @@ const plugin = {
       name: 'premium-features-logger',
       handler: (req, res, next) => {
         if (req.path.startsWith('/api/premium/')) {
-          plugin.context.logger.log('info', `Premium feature accessed: ${req.path}`, {
-            userId: req.user?.userId,
-            method: req.method,
-          });
+          plugin.context.logger.log(
+            'info',
+            `Premium feature accessed: ${req.path}`,
+            {
+              userId: req.user?.userId,
+              method: req.method,
+            }
+          );
         }
         next();
       },

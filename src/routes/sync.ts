@@ -3,7 +3,10 @@ import { DatabaseService } from '../services/database-service';
 import { Logger } from '../services/logger';
 import { ApiResponse, SyncData } from '../types';
 
-export function syncRoutes(databaseService: DatabaseService, logger: Logger): Router {
+export function syncRoutes(
+  databaseService: DatabaseService,
+  logger: Logger
+): Router {
   const router = Router();
 
   // Get sync data for the authenticated user
@@ -18,11 +21,15 @@ export function syncRoutes(databaseService: DatabaseService, logger: Logger): Ro
         return;
       }
 
-      const lastSync = req.query.lastSync ? new Date(req.query.lastSync as string) : new Date(0);
+      const lastSync = req.query.lastSync
+        ? new Date(req.query.lastSync as string)
+        : new Date(0);
       const pages = await databaseService.getPagesByUser(req.user.userId);
 
       // Filter pages updated since last sync
-      const syncedPages = pages.filter(page => new Date(page.updatedAt) > lastSync);
+      const syncedPages = pages.filter(
+        (page) => new Date(page.updatedAt) > lastSync
+      );
 
       const syncData: SyncData = {
         pages: syncedPages,
@@ -136,19 +143,24 @@ export function syncRoutes(databaseService: DatabaseService, logger: Logger): Ro
 
       // This is a simplified changes feed
       // In a real implementation, you'd use CouchDB's actual changes feed
-      const since = req.query.since ? new Date(req.query.since as string) : new Date(0);
+      const since = req.query.since
+        ? new Date(req.query.since as string)
+        : new Date(0);
       const pages = await databaseService.getPagesByUser(req.user.userId);
 
       const changes = pages
-        .filter(page => new Date(page.updatedAt) > since)
-        .map(page => ({
+        .filter((page) => new Date(page.updatedAt) > since)
+        .map((page) => ({
           id: page._id,
           rev: page._rev,
           seq: new Date(page.updatedAt).getTime(),
           changes: [{ rev: page._rev }],
         }));
 
-      const lastSeq = changes.length > 0 ? Math.max(...changes.map(c => c.seq)) : Date.now();
+      const lastSeq =
+        changes.length > 0
+          ? Math.max(...changes.map((c) => c.seq))
+          : Date.now();
 
       res.json({
         results: changes,

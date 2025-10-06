@@ -51,7 +51,9 @@ describe('Encryption Routes', () => {
       mockDatabaseService.getUserPublicKey.mockResolvedValue(null);
       mockDatabaseService.storeUserPublicKey.mockResolvedValue(mockKeystore);
 
-      const response = await request(app).post('/keys/store-public-key').send(validKeyData);
+      const response = await request(app)
+        .post('/keys/store-public-key')
+        .send(validKeyData);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -61,7 +63,10 @@ describe('Encryption Routes', () => {
         userId: 'user123',
         ...validKeyData,
       });
-      expect(mockLogger.log).toHaveBeenCalledWith('info', 'Stored public key for user user123');
+      expect(mockLogger.log).toHaveBeenCalledWith(
+        'info',
+        'Stored public key for user user123'
+      );
     });
 
     it('should update existing public key successfully', async () => {
@@ -74,16 +79,26 @@ describe('Encryption Routes', () => {
       };
 
       mockDatabaseService.getUserPublicKey.mockResolvedValue(existingKeystore);
-      mockDatabaseService.updateUserPublicKey.mockResolvedValue(updatedKeystore);
+      mockDatabaseService.updateUserPublicKey.mockResolvedValue(
+        updatedKeystore
+      );
 
-      const response = await request(app).post('/keys/store-public-key').send(validKeyData);
+      const response = await request(app)
+        .post('/keys/store-public-key')
+        .send(validKeyData);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(response.body.data.keystore.keyId).toBe('key123');
       expect(response.body.message).toBe('Public key updated successfully');
-      expect(mockDatabaseService.updateUserPublicKey).toHaveBeenCalledWith('user123', validKeyData);
-      expect(mockLogger.log).toHaveBeenCalledWith('info', 'Updated public key for user user123');
+      expect(mockDatabaseService.updateUserPublicKey).toHaveBeenCalledWith(
+        'user123',
+        validKeyData
+      );
+      expect(mockLogger.log).toHaveBeenCalledWith(
+        'info',
+        'Updated public key for user user123'
+      );
     });
 
     it('should return validation error for invalid public key', async () => {
@@ -93,7 +108,9 @@ describe('Encryption Routes', () => {
         algorithm: 'RSA-OAEP-256',
       };
 
-      const response = await request(app).post('/keys/store-public-key').send(invalidData);
+      const response = await request(app)
+        .post('/keys/store-public-key')
+        .send(invalidData);
 
       expect(response.status).toBe(400);
       expect(response.body.success).toBe(false);
@@ -107,7 +124,9 @@ describe('Encryption Routes', () => {
         algorithm: 'RSA-OAEP-256',
       };
 
-      const response = await request(app).post('/keys/store-public-key').send(invalidData);
+      const response = await request(app)
+        .post('/keys/store-public-key')
+        .send(invalidData);
 
       expect(response.status).toBe(400);
       expect(response.body.success).toBe(false);
@@ -121,7 +140,9 @@ describe('Encryption Routes', () => {
         keyId: 'key123',
       };
 
-      const response = await request(app).post('/keys/store-public-key').send(invalidData);
+      const response = await request(app)
+        .post('/keys/store-public-key')
+        .send(invalidData);
 
       expect(response.status).toBe(400);
       expect(response.body.success).toBe(false);
@@ -131,9 +152,13 @@ describe('Encryption Routes', () => {
 
     it('should handle database errors during storage', async () => {
       mockDatabaseService.getUserPublicKey.mockResolvedValue(null);
-      mockDatabaseService.storeUserPublicKey.mockRejectedValue(new Error('Database error'));
+      mockDatabaseService.storeUserPublicKey.mockRejectedValue(
+        new Error('Database error')
+      );
 
-      const response = await request(app).post('/keys/store-public-key').send(validKeyData);
+      const response = await request(app)
+        .post('/keys/store-public-key')
+        .send(validKeyData);
 
       expect(response.status).toBe(500);
       expect(response.body.success).toBe(false);
@@ -149,9 +174,13 @@ describe('Encryption Routes', () => {
     it('should handle database errors during update', async () => {
       const existingKeystore = { keyId: 'oldkey' };
       mockDatabaseService.getUserPublicKey.mockResolvedValue(existingKeystore);
-      mockDatabaseService.updateUserPublicKey.mockRejectedValue(new Error('Update failed'));
+      mockDatabaseService.updateUserPublicKey.mockRejectedValue(
+        new Error('Update failed')
+      );
 
-      const response = await request(app).post('/keys/store-public-key').send(validKeyData);
+      const response = await request(app)
+        .post('/keys/store-public-key')
+        .send(validKeyData);
 
       expect(response.status).toBe(500);
       expect(response.body.success).toBe(false);
@@ -170,7 +199,9 @@ describe('Encryption Routes', () => {
       appNoAuth.use(express.json());
       appNoAuth.use('/keys', publicKeyRoutes(mockDatabaseService, mockLogger));
 
-      const response = await request(appNoAuth).post('/keys/store-public-key').send(validKeyData);
+      const response = await request(appNoAuth)
+        .post('/keys/store-public-key')
+        .send(validKeyData);
 
       expect(response.status).toBe(401);
       expect(response.body.success).toBe(false);
@@ -197,7 +228,9 @@ describe('Encryption Routes', () => {
       expect(response.body.data.publicKey).toBe(mockKeystore.publicKey);
       expect(response.body.data.keyId).toBe('key123');
       expect(response.body.data.algorithm).toBe('RSA-OAEP-256');
-      expect(mockDatabaseService.getUserPublicKey).toHaveBeenCalledWith('user456');
+      expect(mockDatabaseService.getUserPublicKey).toHaveBeenCalledWith(
+        'user456'
+      );
     });
 
     it('should return 404 when user has no public key', async () => {
@@ -212,7 +245,9 @@ describe('Encryption Routes', () => {
     });
 
     it('should handle database errors during retrieval', async () => {
-      mockDatabaseService.getUserPublicKey.mockRejectedValue(new Error('Database error'));
+      mockDatabaseService.getUserPublicKey.mockRejectedValue(
+        new Error('Database error')
+      );
 
       const response = await request(app).get('/keys/public-key/user456');
 

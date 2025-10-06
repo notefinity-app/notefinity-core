@@ -14,7 +14,9 @@ describe('Utils Tests', () => {
       logger.log('info', 'Test message');
 
       expect(infoSpy).toHaveBeenCalledWith(
-        expect.stringMatching(/\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\] INFO: Test message/)
+        expect.stringMatching(
+          /\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\] INFO: Test message/
+        )
       );
 
       infoSpy.mockRestore();
@@ -30,9 +32,15 @@ describe('Utils Tests', () => {
       logger.log('warn', 'Warning message');
       logger.log('debug', 'Debug message');
 
-      expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('ERROR: Error message'));
-      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('WARN: Warning message'));
-      expect(debugSpy).toHaveBeenCalledWith(expect.stringContaining('DEBUG: Debug message'));
+      expect(errorSpy).toHaveBeenCalledWith(
+        expect.stringContaining('ERROR: Error message')
+      );
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('WARN: Warning message')
+      );
+      expect(debugSpy).toHaveBeenCalledWith(
+        expect.stringContaining('DEBUG: Debug message')
+      );
 
       errorSpy.mockRestore();
       warnSpy.mockRestore();
@@ -67,7 +75,9 @@ describe('Utils Tests', () => {
     it('should generate IDs in UUID format', () => {
       const id = generateId();
 
-      expect(id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
+      expect(id).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
+      );
     });
 
     it('should generate different IDs on multiple calls', () => {
@@ -93,9 +103,13 @@ describe('Utils Tests', () => {
     it('should handle different date inputs', async () => {
       const { formatDate } = await import('../src/utils');
 
-      const dates = [new Date(), new Date('2020-01-01'), new Date('2030-12-31')];
+      const dates = [
+        new Date(),
+        new Date('2020-01-01'),
+        new Date('2030-12-31'),
+      ];
 
-      dates.forEach(date => {
+      dates.forEach((date) => {
         const formatted = formatDate(date);
         expect(typeof formatted).toBe('string');
         expect(formatted.length).toBeGreaterThan(0);
@@ -175,7 +189,10 @@ describe('Auth Middleware Tests', () => {
     middleware(mockRequest as Request, mockResponse as Response, mockNext);
 
     expect(mockNext).toHaveBeenCalled();
-    expect(mockRequest.user).toEqual({ userId: 'test-user', email: 'test@example.com' });
+    expect(mockRequest.user).toEqual({
+      userId: 'test-user',
+      email: 'test@example.com',
+    });
   });
 });
 

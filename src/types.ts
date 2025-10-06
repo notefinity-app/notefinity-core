@@ -85,7 +85,9 @@ export interface PluginMiddleware {
 }
 
 export interface DatabaseService {
-  createPage(page: Omit<Page, '_id' | '_rev' | 'createdAt' | 'updatedAt'>): Promise<Page>;
+  createPage(
+    page: Omit<Page, '_id' | '_rev' | 'createdAt' | 'updatedAt'>
+  ): Promise<Page>;
   getPageById(id: string, userId: string): Promise<Page | null>;
   getPagesByUser(userId: string): Promise<Page[]>;
   updatePage(id: string, userId: string, updates: Partial<Page>): Promise<Page>;
@@ -101,7 +103,9 @@ export interface DatabaseService {
   ): Promise<Page>;
   getNodePath(nodeId: string, userId: string): Promise<Page[]>;
   // User operations
-  createUser(user: Omit<User, '_id' | '_rev' | 'createdAt' | 'updatedAt'>): Promise<User>;
+  createUser(
+    user: Omit<User, '_id' | '_rev' | 'createdAt' | 'updatedAt'>
+  ): Promise<User>;
   getUserByEmail(email: string): Promise<User | null>;
   getUserById(id: string): Promise<User | null>;
   // Public key registry operations (optional for collaboration)
@@ -109,7 +113,10 @@ export interface DatabaseService {
     keyData: Omit<UserPublicKey, '_id' | '_rev' | 'createdAt' | 'updatedAt'>
   ): Promise<UserPublicKey>;
   getUserPublicKey(userId: string): Promise<UserPublicKey | null>;
-  updateUserPublicKey(userId: string, updates: Partial<UserPublicKey>): Promise<UserPublicKey>;
+  updateUserPublicKey(
+    userId: string,
+    updates: Partial<UserPublicKey>
+  ): Promise<UserPublicKey>;
   deleteUserPublicKey(userId: string): Promise<boolean>;
 }
 

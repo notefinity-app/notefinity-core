@@ -1,11 +1,11 @@
 {
-	"version": "2.0.0",
-	"tasks": [
-		{
-			"label": "Test All",
-			"type": "shell",
-			"command": "npm run test",
-			"group": "test"
-		}
-	]
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Test All",
+      "type": "shell",
+      "command": "npm run test",
+      "group": "test"
+    }
+  ]
 }

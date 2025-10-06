@@ -85,22 +85,29 @@ export class PageManager {
   }
 
   getPagesByUserId(userId: string): Page[] {
-    return Array.from(this.pages.values()).filter(page => page.userId === userId);
+    return Array.from(this.pages.values()).filter(
+      (page) => page.userId === userId
+    );
   }
 
   getSpacesByUserId(userId: string): Page[] {
     return Array.from(this.pages.values()).filter(
-      page => page.userId === userId && page.type === 'space' && !page.parentId
+      (page) =>
+        page.userId === userId && page.type === 'space' && !page.parentId
     );
   }
 
   getChildNodes(parentId: string): Page[] {
     return Array.from(this.pages.values())
-      .filter(page => page.parentId === parentId)
+      .filter((page) => page.parentId === parentId)
       .sort((a, b) => a.position - b.position);
   }
 
-  moveNode(nodeId: string, newParentId?: string, newPosition?: number): boolean {
+  moveNode(
+    nodeId: string,
+    newParentId?: string,
+    newPosition?: number
+  ): boolean {
     const node = this.pages.get(nodeId);
     if (!node) {
       this.logger.log('warn', `Node not found for move: ${nodeId}`);
@@ -111,7 +118,9 @@ export class PageManager {
     if (node.parentId) {
       const oldParent = this.pages.get(node.parentId);
       if (oldParent && oldParent.children) {
-        oldParent.children = oldParent.children.filter(childId => childId !== nodeId);
+        oldParent.children = oldParent.children.filter(
+          (childId) => childId !== nodeId
+        );
         // Update positions of remaining children
         oldParent.children.forEach((childId, index) => {
           const child = this.pages.get(childId);
@@ -137,7 +146,8 @@ export class PageManager {
         newParent.children = [];
       }
 
-      const insertPosition = newPosition !== undefined ? newPosition : newParent.children.length;
+      const insertPosition =
+        newPosition !== undefined ? newPosition : newParent.children.length;
       newParent.children.splice(insertPosition, 0, nodeId);
 
       // Update positions of all children
@@ -179,7 +189,12 @@ export class PageManager {
     return this.createPage(title, '', userId, 'folder', parentId);
   }
 
-  createPageNode(title: string, content: string, userId: string, parentId?: string): Page {
+  createPageNode(
+    title: string,
+    content: string,
+    userId: string,
+    parentId?: string
+  ): Page {
     return this.createPage(title, content, userId, 'page', parentId);
   }
 }

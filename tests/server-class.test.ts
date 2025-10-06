@@ -92,15 +92,21 @@ describe('NotefinityServer Class', () => {
 
       const postResponse = await request(app).post('/nonexistent');
       expect(postResponse.status).toBe(404);
-      expect(postResponse.body.message).toContain('Route POST /nonexistent not found');
+      expect(postResponse.body.message).toContain(
+        'Route POST /nonexistent not found'
+      );
 
       const putResponse = await request(app).put('/nonexistent');
       expect(putResponse.status).toBe(404);
-      expect(putResponse.body.message).toContain('Route PUT /nonexistent not found');
+      expect(putResponse.body.message).toContain(
+        'Route PUT /nonexistent not found'
+      );
 
       const deleteResponse = await request(app).delete('/nonexistent');
       expect(deleteResponse.status).toBe(404);
-      expect(deleteResponse.body.message).toContain('Route DELETE /nonexistent not found');
+      expect(deleteResponse.body.message).toContain(
+        'Route DELETE /nonexistent not found'
+      );
     });
 
     it('should have error handling setup', async () => {
@@ -141,7 +147,9 @@ describe('NotefinityServer Class', () => {
         throw new Error('Process exit called');
       });
 
-      mockDatabaseService.initialize.mockRejectedValue(new Error('Database connection failed'));
+      mockDatabaseService.initialize.mockRejectedValue(
+        new Error('Database connection failed')
+      );
 
       await expect(server.start(3001)).rejects.toThrow('Process exit called');
 
@@ -171,7 +179,9 @@ describe('NotefinityServer Class', () => {
       const app = (server as any).app;
 
       // Make a request to trigger the logging middleware
-      const response = await request(app).get('/health').set('User-Agent', 'Test Agent');
+      const response = await request(app)
+        .get('/health')
+        .set('User-Agent', 'Test Agent');
 
       expect(response.status).toBe(200);
     });

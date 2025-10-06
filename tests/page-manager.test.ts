@@ -45,7 +45,11 @@ describe('PageManager', () => {
   });
 
   it('should update a page', () => {
-    const page = pageManager.createPage('Original Title', 'Original content', 'user123');
+    const page = pageManager.createPage(
+      'Original Title',
+      'Original content',
+      'user123'
+    );
 
     const updatedPage = pageManager.updatePage(page._id, {
       title: 'Updated Title',
@@ -58,7 +62,9 @@ describe('PageManager', () => {
   });
 
   it('should return undefined when updating non-existent page', () => {
-    const result = pageManager.updatePage('non-existent-id', { title: 'New Title' });
+    const result = pageManager.updatePage('non-existent-id', {
+      title: 'New Title',
+    });
 
     expect(result).toBeUndefined();
   });
@@ -127,27 +133,55 @@ describe('PageManager', () => {
       const spaces = pageManager.getSpacesByUserId('user123');
 
       expect(spaces).toHaveLength(2);
-      expect(spaces.every(space => space.type === 'space')).toBe(true);
-      expect(spaces.every(space => space.userId === 'user123')).toBe(true);
+      expect(spaces.every((space) => space.type === 'space')).toBe(true);
+      expect(spaces.every((space) => space.userId === 'user123')).toBe(true);
     });
 
     it('should get child nodes', () => {
       const space = pageManager.createSpace('My Workspace', 'user123');
-      const folder1 = pageManager.createFolder('Folder 1', 'user123', space._id);
-      const folder2 = pageManager.createFolder('Folder 2', 'user123', space._id);
-      const page = pageManager.createPageNode('Page 1', 'Content', 'user123', space._id);
+      const folder1 = pageManager.createFolder(
+        'Folder 1',
+        'user123',
+        space._id
+      );
+      const folder2 = pageManager.createFolder(
+        'Folder 2',
+        'user123',
+        space._id
+      );
+      const page = pageManager.createPageNode(
+        'Page 1',
+        'Content',
+        'user123',
+        space._id
+      );
 
       const children = pageManager.getChildNodes(space._id);
 
       expect(children).toHaveLength(3);
-      expect(children.every(child => child.parentId === space._id)).toBe(true);
+      expect(children.every((child) => child.parentId === space._id)).toBe(
+        true
+      );
     });
 
     it('should move a node to a new parent', () => {
       const space = pageManager.createSpace('My Workspace', 'user123');
-      const folder1 = pageManager.createFolder('Folder 1', 'user123', space._id);
-      const folder2 = pageManager.createFolder('Folder 2', 'user123', space._id);
-      const page = pageManager.createPageNode('Page 1', 'Content', 'user123', folder1._id);
+      const folder1 = pageManager.createFolder(
+        'Folder 1',
+        'user123',
+        space._id
+      );
+      const folder2 = pageManager.createFolder(
+        'Folder 2',
+        'user123',
+        space._id
+      );
+      const page = pageManager.createPageNode(
+        'Page 1',
+        'Content',
+        'user123',
+        folder1._id
+      );
 
       const moved = pageManager.moveNode(page._id, folder2._id, 0);
 
@@ -160,7 +194,12 @@ describe('PageManager', () => {
     it('should get node path', () => {
       const space = pageManager.createSpace('My Workspace', 'user123');
       const folder = pageManager.createFolder('Projects', 'user123', space._id);
-      const page = pageManager.createPageNode('Project Notes', 'Content', 'user123', folder._id);
+      const page = pageManager.createPageNode(
+        'Project Notes',
+        'Content',
+        'user123',
+        folder._id
+      );
 
       const path = pageManager.getNodePath(page._id);
 

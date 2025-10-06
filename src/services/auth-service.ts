@@ -7,7 +7,8 @@ export class AuthService implements IAuthService {
   private readonly jwtExpiresIn: string;
 
   constructor() {
-    this.jwtSecret = process.env.JWT_SECRET || 'fallback-secret-for-development-only';
+    this.jwtSecret =
+      process.env.JWT_SECRET || 'fallback-secret-for-development-only';
     this.jwtExpiresIn = process.env.JWT_EXPIRES_IN || '7d';
 
     // Warn if using fallback secret in production

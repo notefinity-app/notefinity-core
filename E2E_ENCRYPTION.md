@@ -177,10 +177,11 @@ async function generateKeyPair() {
 ```javascript
 async function encryptPageContent(content, publicKeyPem) {
   // Generate AES key
-  const aesKey = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, [
-    'encrypt',
-    'decrypt',
-  ]);
+  const aesKey = await crypto.subtle.generateKey(
+    { name: 'AES-GCM', length: 256 },
+    true,
+    ['encrypt', 'decrypt']
+  );
 
   // Encrypt content with AES
   const iv = crypto.getRandomValues(new Uint8Array(12));
@@ -193,7 +194,11 @@ async function encryptPageContent(content, publicKeyPem) {
   // Encrypt AES key with RSA
   const publicKey = await importPublicKey(publicKeyPem);
   const exportedAesKey = await crypto.subtle.exportKey('raw', aesKey);
-  const encryptedKey = await crypto.subtle.encrypt({ name: 'RSA-OAEP' }, publicKey, exportedAesKey);
+  const encryptedKey = await crypto.subtle.encrypt(
+    { name: 'RSA-OAEP' },
+    publicKey,
+    exportedAesKey
+  );
 
   return {
     algorithm: 'RSA-OAEP+AES-256-GCM',
@@ -214,12 +219,20 @@ async function decryptPageContent(encryptedBlob, privateKeyPem) {
 
   // Decrypt AES key
   const encryptedKey = base64ToArrayBuffer(encryptedBlob.encryptedKey);
-  const aesKeyData = await crypto.subtle.decrypt({ name: 'RSA-OAEP' }, privateKey, encryptedKey);
+  const aesKeyData = await crypto.subtle.decrypt(
+    { name: 'RSA-OAEP' },
+    privateKey,
+    encryptedKey
+  );
 
   // Import AES key
-  const aesKey = await crypto.subtle.importKey('raw', aesKeyData, { name: 'AES-GCM' }, false, [
-    'decrypt',
-  ]);
+  const aesKey = await crypto.subtle.importKey(
+    'raw',
+    aesKeyData,
+    { name: 'AES-GCM' },
+    false,
+    ['decrypt']
+  );
 
   // Decrypt content
   const iv = base64ToArrayBuffer(encryptedBlob.iv);

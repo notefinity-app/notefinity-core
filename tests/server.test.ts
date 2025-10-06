@@ -16,7 +16,9 @@ describe('Server Middleware and Routes', () => {
     app.use(helmet());
     app.use(
       cors({
-        origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'],
+        origin: process.env.ALLOWED_ORIGINS?.split(',') || [
+          'http://localhost:3000',
+        ],
         credentials: true,
       })
     );
@@ -71,11 +73,19 @@ describe('Server Middleware and Routes', () => {
 
     // Global error handler
     app.use(
-      (err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+      (
+        err: Error,
+        req: express.Request,
+        res: express.Response,
+        next: express.NextFunction
+      ) => {
         res.status(500).json({
           success: false,
           error: 'Internal Server Error',
-          message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong',
+          message:
+            process.env.NODE_ENV === 'development'
+              ? err.message
+              : 'Something went wrong',
         });
       }
     );
@@ -100,7 +110,9 @@ describe('Server Middleware and Routes', () => {
       expect(response.status).toBe(404);
       expect(response.body.success).toBe(false);
       expect(response.body.error).toBe('Not Found');
-      expect(response.body.message).toContain('Route GET /nonexistent-route not found');
+      expect(response.body.message).toContain(
+        'Route GET /nonexistent-route not found'
+      );
     });
 
     it('should handle POST requests to unknown routes', async () => {
@@ -109,7 +121,9 @@ describe('Server Middleware and Routes', () => {
       expect(response.status).toBe(404);
       expect(response.body.success).toBe(false);
       expect(response.body.error).toBe('Not Found');
-      expect(response.body.message).toContain('Route POST /nonexistent-route not found');
+      expect(response.body.message).toContain(
+        'Route POST /nonexistent-route not found'
+      );
     });
 
     it('should handle PUT requests to unknown routes', async () => {
@@ -118,7 +132,9 @@ describe('Server Middleware and Routes', () => {
       expect(response.status).toBe(404);
       expect(response.body.success).toBe(false);
       expect(response.body.error).toBe('Not Found');
-      expect(response.body.message).toContain('Route PUT /nonexistent-route not found');
+      expect(response.body.message).toContain(
+        'Route PUT /nonexistent-route not found'
+      );
     });
 
     it('should handle DELETE requests to unknown routes', async () => {
@@ -127,13 +143,17 @@ describe('Server Middleware and Routes', () => {
       expect(response.status).toBe(404);
       expect(response.body.success).toBe(false);
       expect(response.body.error).toBe('Not Found');
-      expect(response.body.message).toContain('Route DELETE /nonexistent-route not found');
+      expect(response.body.message).toContain(
+        'Route DELETE /nonexistent-route not found'
+      );
     });
   });
 
   describe('Middleware Setup', () => {
     it('should parse JSON bodies', async () => {
-      const response = await request(app).post('/nonexistent-route').send({ test: 'data' });
+      const response = await request(app)
+        .post('/nonexistent-route')
+        .send({ test: 'data' });
 
       expect(response.status).toBe(404); // Route doesn't exist, but body was parsed
     });
@@ -150,7 +170,9 @@ describe('Server Middleware and Routes', () => {
     it('should handle large JSON payloads within limit', async () => {
       const largeData = { content: 'x'.repeat(1024 * 1024) }; // 1MB
 
-      const response = await request(app).post('/nonexistent-route').send(largeData);
+      const response = await request(app)
+        .post('/nonexistent-route')
+        .send(largeData);
 
       expect(response.status).toBe(404); // Route doesn't exist, but body was parsed
     });

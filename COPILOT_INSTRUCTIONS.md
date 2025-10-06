@@ -261,10 +261,22 @@ Notefinity organizes content in a three-level hierarchy:
 const space = pageManager.createPage('My Workspace', '', userId, 'space');
 
 // Create a folder in the space
-const folder = pageManager.createPage('Projects', '', userId, 'folder', space._id);
+const folder = pageManager.createPage(
+  'Projects',
+  '',
+  userId,
+  'folder',
+  space._id
+);
 
 // Create a page in the folder
-const page = pageManager.createPage('Project Notes', 'Content...', userId, 'page', folder._id);
+const page = pageManager.createPage(
+  'Project Notes',
+  'Content...',
+  userId,
+  'page',
+  folder._id
+);
 ```
 
 #### Querying Hierarchical Data

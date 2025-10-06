@@ -18,7 +18,7 @@ describe('Type Definitions and Interfaces', () => {
     it('should accept valid node types', () => {
       const validTypes: NodeType[] = ['space', 'folder', 'page'];
 
-      validTypes.forEach(type => {
+      validTypes.forEach((type) => {
         expect(['space', 'folder', 'page']).toContain(type);
       });
     });
@@ -81,8 +81,12 @@ describe('Type Definitions and Interfaces', () => {
       };
 
       expect(encryptedPage.isEncrypted).toBe(true);
-      expect(encryptedPage.encryptedTitle?.algorithm).toBe('RSA-OAEP+AES-256-GCM');
-      expect(encryptedPage.encryptedContent?.data).toBe('encrypted-content-data');
+      expect(encryptedPage.encryptedTitle?.algorithm).toBe(
+        'RSA-OAEP+AES-256-GCM'
+      );
+      expect(encryptedPage.encryptedContent?.data).toBe(
+        'encrypted-content-data'
+      );
     });
 
     it('should support different node types', () => {
@@ -305,7 +309,9 @@ describe('Type Definitions and Interfaces', () => {
   describe('Type Utility Functions', () => {
     it('should work with type guards', () => {
       function isPage(obj: any): obj is Page {
-        return obj && typeof obj._id === 'string' && typeof obj.title === 'string';
+        return (
+          obj && typeof obj._id === 'string' && typeof obj.title === 'string'
+        );
       }
 
       const validPage = {

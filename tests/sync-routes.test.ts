@@ -64,7 +64,9 @@ describe('Sync Routes', () => {
       expect(response.body.data.pages[1]._id).toBe('page2');
       expect(response.body.data.lastSync).toBeDefined();
       expect(response.body.message).toBe('Synced 2 pages');
-      expect(mockDatabaseService.getPagesByUser).toHaveBeenCalledWith('user123');
+      expect(mockDatabaseService.getPagesByUser).toHaveBeenCalledWith(
+        'user123'
+      );
       expect(mockLogger.log).toHaveBeenCalledWith(
         'info',
         'Sync data requested by user user123: 2 pages'
@@ -99,7 +101,9 @@ describe('Sync Routes', () => {
       mockDatabaseService.getPagesByUser.mockResolvedValue(mockPages);
 
       const lastSync = '2023-01-01T12:00:00Z';
-      const response = await request(app).get(`/sync/data?lastSync=${lastSync}`);
+      const response = await request(app).get(
+        `/sync/data?lastSync=${lastSync}`
+      );
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -127,7 +131,9 @@ describe('Sync Routes', () => {
       mockDatabaseService.getPagesByUser.mockResolvedValue(mockPages);
 
       const lastSync = '2023-01-02T10:00:00Z'; // After all pages
-      const response = await request(app).get(`/sync/data?lastSync=${lastSync}`);
+      const response = await request(app).get(
+        `/sync/data?lastSync=${lastSync}`
+      );
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -152,7 +158,9 @@ describe('Sync Routes', () => {
 
       mockDatabaseService.getPagesByUser.mockResolvedValue(mockPages);
 
-      const response = await request(app).get('/sync/data?lastSync=invalid-date');
+      const response = await request(app).get(
+        '/sync/data?lastSync=invalid-date'
+      );
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -161,7 +169,9 @@ describe('Sync Routes', () => {
     });
 
     it('should handle database errors during sync', async () => {
-      mockDatabaseService.getPagesByUser.mockRejectedValue(new Error('Database error'));
+      mockDatabaseService.getPagesByUser.mockRejectedValue(
+        new Error('Database error')
+      );
 
       const response = await request(app).get('/sync/data');
 
@@ -169,7 +179,11 @@ describe('Sync Routes', () => {
       expect(response.body.success).toBe(false);
       expect(response.body.error).toBe('Internal Server Error');
       expect(response.body.message).toBe('Failed to retrieve sync data');
-      expect(mockLogger.log).toHaveBeenCalledWith('error', 'Sync data error:', expect.any(Error));
+      expect(mockLogger.log).toHaveBeenCalledWith(
+        'error',
+        'Sync data error:',
+        expect.any(Error)
+      );
     });
 
     it('should require authentication', async () => {
@@ -217,7 +231,9 @@ describe('Sync Routes', () => {
     it('should process bulk sync data successfully', async () => {
       mockDatabaseService.updatePage.mockResolvedValue({});
 
-      const response = await request(app).post('/sync/bulk').send(validSyncData);
+      const response = await request(app)
+        .post('/sync/bulk')
+        .send(validSyncData);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -245,7 +261,9 @@ describe('Sync Routes', () => {
         pages: [],
       };
 
-      const response = await request(app).post('/sync/bulk').send(emptySyncData);
+      const response = await request(app)
+        .post('/sync/bulk')
+        .send(emptySyncData);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -260,9 +278,13 @@ describe('Sync Routes', () => {
     });
 
     it('should handle database errors during bulk sync', async () => {
-      mockDatabaseService.updatePage.mockRejectedValue(new Error('Database error'));
+      mockDatabaseService.updatePage.mockRejectedValue(
+        new Error('Database error')
+      );
 
-      const response = await request(app).post('/sync/bulk').send(validSyncData);
+      const response = await request(app)
+        .post('/sync/bulk')
+        .send(validSyncData);
 
       expect(response.status).toBe(200); // Still returns 200 but with errors in results
       expect(response.body.success).toBe(true);
@@ -277,7 +299,9 @@ describe('Sync Routes', () => {
       appNoAuth.use(express.json());
       appNoAuth.use('/sync', syncRoutes(mockDatabaseService, mockLogger));
 
-      const response = await request(appNoAuth).post('/sync/bulk').send(validSyncData);
+      const response = await request(appNoAuth)
+        .post('/sync/bulk')
+        .send(validSyncData);
 
       expect(response.status).toBe(401);
       expect(response.body.success).toBe(false);
@@ -440,7 +464,9 @@ describe('Sync Routes', () => {
     });
 
     it('should handle database errors during info retrieval', async () => {
-      mockDatabaseService.getPagesByUser.mockRejectedValue(new Error('Database error'));
+      mockDatabaseService.getPagesByUser.mockRejectedValue(
+        new Error('Database error')
+      );
 
       const response = await request(app).get('/sync/info');
 
