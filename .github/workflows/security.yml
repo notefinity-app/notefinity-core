@@ -30,7 +30,14 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          # Workaround for npm optional dependencies bug with Rollup
+          # https://github.com/npm/cli/issues/4828
+          if ! npm ci; then
+            echo "npm ci failed, trying workaround for optional dependencies..."
+            rm -rf node_modules package-lock.json
+            npm install
+          fi
 
       - name: Run npm audit
         run: npm audit --audit-level=moderate

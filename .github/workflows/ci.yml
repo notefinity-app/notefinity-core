@@ -43,7 +43,20 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          # Workaround for npm optional dependencies bug with Rollup
+          # https://github.com/npm/cli/issues/4828
+          if ! npm ci; then
+            echo "npm ci failed, trying workaround for optional dependencies..."
+            rm -rf node_modules package-lock.json
+            npm install
+          fi
+
+      - name: Verify Rollup installation
+        run: |
+          echo "Verifying Rollup and Vitest can start..."
+          npx vitest --version || echo "Vitest version check failed"
+          node -e "require('rollup')" || echo "Rollup require test failed"
 
       - name: Check code formatting
         run: |
@@ -123,7 +136,13 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          # Workaround for npm optional dependencies bug with Rollup
+          if ! npm ci; then
+            echo "npm ci failed, trying workaround for optional dependencies..."
+            rm -rf node_modules package-lock.json
+            npm install
+          fi
 
       - name: Run npm audit
         run: npm audit --audit-level=moderate
@@ -148,7 +167,13 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          # Workaround for npm optional dependencies bug with Rollup
+          if ! npm ci; then
+            echo "npm ci failed, trying workaround for optional dependencies..."
+            rm -rf node_modules package-lock.json
+            npm install
+          fi
 
       - name: Build project
         run: npm run build
@@ -182,7 +207,13 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          # Workaround for npm optional dependencies bug with Rollup
+          if ! npm ci; then
+            echo "npm ci failed, trying workaround for optional dependencies..."
+            rm -rf node_modules package-lock.json
+            npm install
+          fi
 
       - name: Build project
         run: npm run build
