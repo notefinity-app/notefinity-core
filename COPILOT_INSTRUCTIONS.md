@@ -462,12 +462,14 @@ The core is designed for **transparent self-hosting**, enabling users to:
 ### Available Deployment Methods
 
 #### CapRover (Recommended for Beginners)
+
 - **Location**: `self-hosting/caprover/`
 - **Features**: One-click deployment, web dashboard, automatic SSL
 - **Files**: `captain-definition`, deployment script, comprehensive docs
 - **Usage**: `npm run deploy:caprover`
 
 #### Docker (For Advanced Users)
+
 - **Location**: Root `Dockerfile` with multi-stage build
 - **Features**: Production optimization, security hardening, health checks
 - **Usage**: `npm run docker:build && npm run docker:run`
