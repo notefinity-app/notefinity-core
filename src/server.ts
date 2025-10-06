@@ -109,12 +109,6 @@ export class NotefinityServer {
 
     // Plugin routes will be added here by the plugin manager
     this.pluginManager.loadPlugins();
-
-    // Catch-all handler for SPA (should be last route)
-    this.app.get('*', (req, res) => {
-      const clientDistPath = path.join(__dirname, '..', 'client-dist');
-      res.sendFile(path.join(clientDistPath, 'index.html'));
-    });
   }
 
   private setupErrorHandling(): void {
@@ -123,7 +117,33 @@ export class NotefinityServer {
       res.status(404).json({
         success: false,
         error: 'Not Found',
-        message: `Route ${req.method} ${req.path} not found`,
+        message: `Route ${req.method} ${req.originalUrl} not found`,
+      });
+    });
+
+    // SPA fallback handler (only for GET requests to non-API routes)
+    this.app.get('*', (req, res) => {
+      const clientDistPath = path.join(__dirname, '..', 'client-dist');
+      const indexPath = path.join(clientDistPath, 'index.html');
+      
+      // Check if client-dist exists and serve SPA, otherwise return 404
+      if (require('fs').existsSync(indexPath)) {
+        res.sendFile(indexPath);
+      } else {
+        res.status(404).json({
+          success: false,
+          error: 'Not Found',
+          message: `Route ${req.method} ${req.originalUrl} not found`,
+        });
+      }
+    });
+
+    // 404 handler for non-GET requests to non-API routes
+    this.app.use('*', (req, res) => {
+      res.status(404).json({
+        success: false,
+        error: 'Not Found',
+        message: `Route ${req.method} ${req.originalUrl} not found`,
       });
     });
 

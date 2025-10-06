@@ -44,8 +44,4 @@ export default defineConfig({
   define: {
     global: 'globalThis',
   },
-  test: {
-    globals: true,
-    environment: 'node',
-  },
 });

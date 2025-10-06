@@ -75,19 +75,39 @@ describe('NotefinityServer Class', () => {
   });
 
   describe('Error Handling', () => {
-    it('should return 404 for non-existent routes', async () => {
+    it('should serve SPA for non-API GET routes when client-dist exists, or return 404', async () => {
       const app = (server as any).app;
       const response = await request(app).get('/nonexistent-route');
+
+      // Should either serve SPA (200 with HTML) or return 404 JSON if no client-dist
+      if (response.status === 200) {
+        // SPA is being served
+        expect(response.text).toContain('<html');
+        expect(response.text).toContain('Notefinity');
+      } else {
+        // No SPA available, should return 404 JSON
+        expect(response.status).toBe(404);
+        expect(response.body).toEqual({
+          success: false,
+          error: 'Not Found',
+          message: 'Route GET /nonexistent-route not found',
+        });
+      }
+    });
+
+    it('should return 404 for non-existent API routes', async () => {
+      const app = (server as any).app;
+      const response = await request(app).get('/api/nonexistent');
 
       expect(response.status).toBe(404);
       expect(response.body).toEqual({
         success: false,
         error: 'Not Found',
-        message: 'Route GET /nonexistent-route not found',
+        message: 'Route GET /api/nonexistent not found',
       });
     });
 
-    it('should handle different HTTP methods in 404 response', async () => {
+    it('should handle different HTTP methods in 404 response for non-API routes', async () => {
       const app = (server as any).app;
 
       const postResponse = await request(app).post('/nonexistent');
