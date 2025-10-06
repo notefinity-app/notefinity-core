@@ -4,6 +4,7 @@
   "description": "Open source core of Notefinity",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "type": "module",
   "scripts": {
     "build": "npm run build:server && npm run build:copy-client",
     "build:server": "vite build",
@@ -40,9 +41,26 @@
     "docker:run": "docker run -p 3000:3000 --env-file .env notefinity-core"
   },
   "keywords": [
-    "notes",
     "productivity",
-    "open-source"
+    "notion-alternative",
+    "personal-knowledge-management",
+    "pkm",
+    "local-first",
+    "auditable-backend",
+    "open-source",
+    "open-source-backend",
+    "privacy",
+    "self-hosted",
+    "offline-first",
+    "collaboration",
+    "notes",
+    "knowledge-base",
+    "workspace",
+    "react",
+    "nodejs",
+    "typescript",
+    "ant-design",
+    "couchdb"
   ],
   "author": "Notefinity Team",
   "license": "AGPL-3.0-or-later",

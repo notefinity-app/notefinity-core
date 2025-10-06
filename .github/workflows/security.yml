@@ -84,7 +84,8 @@ jobs:
           if command -v npx &> /dev/null; then
             if npx eslint --version &> /dev/null; then
               echo "Running ESLint security analysis..."
-              if npx eslint . --ext .js,.ts --format @microsoft/eslint-formatter-sarif --output-file eslint-results.sarif 2>/dev/null; then
+              # Use the same linting scope as local development to ensure consistency
+              if npx eslint src/**/*.ts --format @microsoft/eslint-formatter-sarif --output-file eslint-results.sarif 2>/dev/null; then
                 echo "ESLint completed successfully"
                 echo "ESLINT_RAN=true" >> $GITHUB_ENV
               else

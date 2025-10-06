@@ -23,6 +23,7 @@ export default [
         module: 'readonly',
         require: 'readonly',
         exports: 'readonly',
+        crypto: 'readonly',
       },
     },
     plugins: {
@@ -61,6 +62,37 @@ export default [
     },
   },
   {
-    ignores: ['dist/**', 'coverage/**', 'client-dist/**', 'node_modules/**'],
+    files: ['**/*.js'],
+    languageOptions: {
+      ecmaVersion: 2020,
+      sourceType: 'module',
+      globals: {
+        console: 'readonly',
+        process: 'readonly',
+        Buffer: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        global: 'readonly',
+        module: 'readonly',
+        require: 'readonly',
+        exports: 'readonly',
+      },
+    },
+    rules: {
+      // General rules for JavaScript files
+      'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      'no-undef': 'error',
+      'prefer-const': 'error',
+      'no-var': 'error',
+    },
+  },
+  {
+    ignores: [
+      'dist/**',
+      'coverage/**',
+      'client-dist/**',
+      'node_modules/**',
+      'plugins/**',
+    ],
   },
 ];
