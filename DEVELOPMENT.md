@@ -5,7 +5,7 @@ This guide helps you get the Notefinity Core backend up and running for developm
 ## Key Features
 
 - 🔒 **End-to-End Encryption** - Client-side encryption with zero-knowledge server
-- 🌳 **Hierarchical Organization** - Spaces → Folders → Pages structure  
+- 🌳 **Hierarchical Organization** - Spaces → Folders → Pages structure
 - 🔐 **User Data Isolation** - Complete separation of user data
 - 🔌 **Transparent Plugin System** - Auditable premium feature architecture
 - 📊 **CouchDB Integration** - Document-based storage with sync capabilities
@@ -25,7 +25,7 @@ Run our setup script:
 
 ```bash
 ./setup.sh
-````
+```
 
 This will:
 
@@ -182,7 +182,7 @@ curl -X POST http://localhost:3001/api/pages \
       "version": 1
     },
     "encryptedContent": {
-      "algorithm": "RSA-OAEP+AES-256-GCM", 
+      "algorithm": "RSA-OAEP+AES-256-GCM",
       "data": "base64-encrypted-content-data",
       "version": 1
     }
