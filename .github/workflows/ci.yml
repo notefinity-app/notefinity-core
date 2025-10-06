@@ -95,8 +95,38 @@ jobs:
         env:
           COUCHDB_URL: http://admin:password@localhost:5984
 
+      - name: Fix Rollup binaries before tests
+        run: |
+          echo "Ensuring Rollup binaries are properly installed..."
+          # Check if Rollup can be loaded
+          if ! node -e "require('rollup')" 2>/dev/null; then
+            echo "Rollup failed to load, applying fix..."
+            rm -rf node_modules package-lock.json
+            npm install
+            
+            # Verify the fix worked
+            if ! node -e "require('rollup')" 2>/dev/null; then
+              echo "Rollup still failing, trying alternative approach..."
+              npm install --force
+            fi
+          fi
+
+          # Final verification
+          if node -e "require('rollup')" 2>/dev/null; then
+            echo "✅ Rollup is working correctly"
+          else
+            echo "❌ Rollup still not working, but continuing..."
+          fi
+
       - name: Run tests
-        run: npm test
+        run: |
+          # Try to run tests, with fallback if Rollup issues persist
+          if ! npm test; then
+            echo "Tests failed, trying npm install fix and retry..."
+            rm -rf node_modules package-lock.json
+            npm install
+            npm test
+          fi
         env:
           COUCHDB_URL: http://admin:password@localhost:5984
           JWT_SECRET: test-secret-key-for-ci
