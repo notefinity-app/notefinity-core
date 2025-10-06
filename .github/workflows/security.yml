@@ -38,6 +38,7 @@ jobs:
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/node@master
         continue-on-error: true
+        if: env.SNYK_TOKEN != ''
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
@@ -45,9 +46,11 @@ jobs:
 
       - name: Upload Snyk results to GitHub Code Scanning
         uses: github/codeql-action/upload-sarif@v3
-        if: always()
+        if: always() && env.SNYK_TOKEN != ''
         with:
           sarif_file: snyk.sarif
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
@@ -60,9 +63,19 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
 
+      - name: Install ESLint and security plugins
+        run: |
+          npm install --no-save eslint @microsoft/eslint-formatter-sarif || echo "ESLint installation failed"
+        continue-on-error: true
+
       - name: Run ESLint Security Rules
         run: |
-          npx eslint . --ext .js,.ts --format @microsoft/eslint-formatter-sarif --output-file eslint-results.sarif || true
+          if command -v npx eslint &> /dev/null; then
+            npx eslint . --ext .js,.ts --format @microsoft/eslint-formatter-sarif --output-file eslint-results.sarif || true
+          else
+            echo "ESLint not available, skipping..."
+            echo "[]" > eslint-results.sarif
+          fi
         continue-on-error: true
 
       - name: Upload ESLint results

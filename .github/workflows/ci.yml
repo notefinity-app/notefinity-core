@@ -51,6 +51,9 @@ jobs:
       - name: Build project
         run: npm run build
 
+      - name: Install curl
+        run: sudo apt-get update && sudo apt-get install -y curl
+
       - name: Wait for CouchDB
         run: |
           for i in {1..30}; do
@@ -64,9 +67,9 @@ jobs:
 
       - name: Setup CouchDB for tests
         run: |
-          curl -X PUT http://admin:password@localhost:5984/_users
-          curl -X PUT http://admin:password@localhost:5984/_replicator
-          curl -X PUT http://admin:password@localhost:5984/_global_changes
+          curl -X PUT http://admin:password@localhost:5984/_users || echo "Users DB might already exist"
+          curl -X PUT http://admin:password@localhost:5984/_replicator || echo "Replicator DB might already exist" 
+          curl -X PUT http://admin:password@localhost:5984/_global_changes || echo "Global changes DB might already exist"
         env:
           COUCHDB_URL: http://admin:password@localhost:5984
 
@@ -86,12 +89,15 @@ jobs:
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
+        if: env.CODECOV_TOKEN != ''
         with:
           file: ./coverage/lcov.info
           flags: unittests
           name: codecov-umbrella
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: false
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   security:
     name: Security Audit
@@ -184,12 +190,12 @@ jobs:
         run: echo "VERSION=$(node -p 'require("./package.json").version')" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release
-        uses: actions/create-release@v1
+        uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: v${{ steps.package-version.outputs.VERSION }}
-          release_name: Release v${{ steps.package-version.outputs.VERSION }}
+          name: Release v${{ steps.package-version.outputs.VERSION }}
           body: |
             ## Changes
 
