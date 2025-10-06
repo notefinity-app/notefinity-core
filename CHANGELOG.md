@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **🚀 COMPREHENSIVE CI/CD PIPELINE**: Professional-grade automation and quality assurance
 
-  - **Multi-Platform Testing**: Automated testing across Node.js 18.x, 20.x, 22.x
+  - **Multi-Platform Testing**: Automated testing across Node.js 20.x, 22.x
   - **CouchDB Integration Testing**: Full database service integration in CI environment
   - **Automated Coverage Reporting**: Codecov integration with 75%+ coverage thresholds
   - **Security Scanning**: Daily CodeQL analysis, Snyk vulnerability detection, NPM audits

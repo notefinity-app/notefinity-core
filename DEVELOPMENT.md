@@ -15,8 +15,8 @@ This guide helps you get the Notefinity Core backend up and running for developm
 
 ### 1. Prerequisites
 
-- **Node.js 18+** (check with `node --version`)
-- **npm 8+** (check with `npm --version`)
+- **Node.js 20+** (check with `node --version`)
+- **npm 10+** (check with `npm --version`)
 - **CouchDB** (we'll help you set this up)
 
 ### 2. Automated Setup
@@ -268,7 +268,7 @@ The project includes comprehensive GitHub Actions workflows for continuous integ
 
 **Main CI Pipeline** (`.github/workflows/ci.yml`):
 
-- **Multi-version testing**: Node.js 18.x, 20.x, 22.x
+- **Multi-version testing**: Node.js 20.x, 22.x
 - **CouchDB integration**: Full database testing with Docker services
 - **Code quality**: Linting, formatting, and build verification
 - **Test coverage**: Automated coverage reporting to Codecov
@@ -484,7 +484,7 @@ PORT=3001
 ### Docker Deployment
 
 ```dockerfile
-FROM node:18-alpine
+FROM node:20-alpine
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci --only=production

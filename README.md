@@ -50,7 +50,7 @@ This open-source core demonstrates **exactly** what our backend does, proving we
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js 20+
 - CouchDB 3.x running locally or accessible URL
 
 ### Installation
@@ -559,7 +559,7 @@ type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
 ### Prerequisites
 
-- Node.js >= 18.0.0
+- Node.js >= 20.0.0
 - npm or yarn
 
 ### Setup
