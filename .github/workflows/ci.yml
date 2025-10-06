@@ -123,13 +123,6 @@ jobs:
         run: npm audit fix --dry-run
         continue-on-error: true
 
-      - name: Check for known security vulnerabilities
-        uses: securecodewarrior/github-action-add-sarif@v1
-        if: always()
-        continue-on-error: true
-        with:
-          sarif-file: 'audit-results.sarif'
-
   build:
     name: Build & Package
     runs-on: ubuntu-latest
