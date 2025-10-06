@@ -19,6 +19,8 @@
     "test:ci": "vitest run --coverage --reporter=json --reporter=verbose",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
+    "format:list": "prettier --list-different \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
+    "format:check-verbose": "echo 'Checking formatting for all TypeScript, JavaScript, JSON, Markdown, and YAML files...' && prettier --check --debug-check \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
     "deploy:caprover": "./self-hosting/caprover/deploy-caprover.sh",
     "docker:build": "docker build -t notefinity-core .",
     "docker:run": "docker run -p 3000:3000 --env-file .env notefinity-core"
