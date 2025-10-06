@@ -71,34 +71,51 @@ jobs:
 
       - name: Run ESLint Security Rules
         run: |
-          # Create a valid empty SARIF file as default
-          cat > eslint-results.sarif << 'EOF'
-          {
-            "version": "2.1.0",
-            "runs": []
-          }
-          EOF
-
+          echo "ESLINT_RAN=false" >> $GITHUB_ENV
+          
           # Try to run ESLint if available
           if command -v npx &> /dev/null; then
             if npx eslint --version &> /dev/null; then
               echo "Running ESLint security analysis..."
-              npx eslint . --ext .js,.ts --format @microsoft/eslint-formatter-sarif --output-file eslint-results.sarif 2>/dev/null || echo "ESLint completed with issues"
+              if npx eslint . --ext .js,.ts --format @microsoft/eslint-formatter-sarif --output-file eslint-results.sarif 2>/dev/null; then
+                echo "ESLint completed successfully"
+                echo "ESLINT_RAN=true" >> $GITHUB_ENV
+              else
+                echo "ESLint found issues or failed, checking if SARIF was created..."
+                if [ -f "eslint-results.sarif" ] && [ -s "eslint-results.sarif" ]; then
+                  echo "ESLint created SARIF file with results"
+                  echo "ESLINT_RAN=true" >> $GITHUB_ENV
+                else
+                  echo "ESLint failed to create valid SARIF file"
+                fi
+              fi
             else
-              echo "ESLint not properly installed, using empty SARIF file"
+              echo "ESLint not properly installed, skipping security scanning"
             fi
           else
-            echo "npx not available, using empty SARIF file"
+            echo "npx not available, skipping security scanning"
           fi
         continue-on-error: true
 
-      - name: Check if SARIF file exists and upload
+      - name: Check SARIF file and prepare upload
         run: |
-          if [ -f "eslint-results.sarif" ] && [ -s "eslint-results.sarif" ]; then
-            echo "SARIF file exists and is not empty, will upload"
-            echo "UPLOAD_SARIF=true" >> $GITHUB_ENV
+          if [ "$ESLINT_RAN" = "true" ] && [ -f "eslint-results.sarif" ]; then
+            # Check if SARIF file has valid content
+            if grep -q '"runs"' eslint-results.sarif && [ -s "eslint-results.sarif" ]; then
+              # Check if it's not just empty runs array
+              if grep -q '"results"' eslint-results.sarif || grep -q '"rules"' eslint-results.sarif; then
+                echo "SARIF file contains valid security scan results"
+                echo "UPLOAD_SARIF=true" >> $GITHUB_ENV
+              else
+                echo "SARIF file exists but contains no security findings"
+                echo "UPLOAD_SARIF=false" >> $GITHUB_ENV
+              fi
+            else
+              echo "SARIF file exists but appears invalid"
+              echo "UPLOAD_SARIF=false" >> $GITHUB_ENV
+            fi
           else
-            echo "SARIF file missing or empty, skipping upload"
+            echo "No ESLint results to upload"
             echo "UPLOAD_SARIF=false" >> $GITHUB_ENV
           fi
 
