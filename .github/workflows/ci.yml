@@ -70,37 +70,19 @@ jobs:
           fi
           echo "✅ All files are properly formatted!"
 
-      - name: Fix Rollup binaries before build
-        run: |
-          echo "Ensuring Rollup binaries are properly installed for Vite build..."
-          # Check if Rollup can be loaded
-          if ! node -e "require('rollup')" 2>/dev/null; then
-            echo "Rollup failed to load, applying fix..."
-            rm -rf node_modules package-lock.json
-            npm install
-            
-            # Verify the fix worked
-            if ! node -e "require('rollup')" 2>/dev/null; then
-              echo "Rollup still failing, trying alternative approach..."
-              npm install --force
-            fi
-          fi
-
-          # Final verification
-          if node -e "require('rollup')" 2>/dev/null; then
-            echo "✅ Rollup is working correctly"
-          else
-            echo "❌ Rollup still not working, but continuing..."
-          fi
-
       - name: Build project
         run: |
-          # Try to build, with fallback if Rollup issues persist
+          echo "Building project with Vite..."
+          # Try to build first, with fallback if Rollup issues occur
           if ! npm run build; then
-            echo "Build failed, trying npm install fix and retry..."
+            echo "❌ Build failed, likely due to Rollup dependency issues"
+            echo "Applying Rollup dependency fix and retrying..."
             rm -rf node_modules package-lock.json
             npm install
+            echo "Retrying build after dependency refresh..."
             npm run build
+          else
+            echo "✅ Build succeeded on first attempt"
           fi
 
       - name: Install curl
@@ -235,37 +217,19 @@ jobs:
             npm install
           fi
 
-      - name: Fix Rollup binaries before build
-        run: |
-          echo "Ensuring Rollup binaries are properly installed for Vite build..."
-          # Check if Rollup can be loaded
-          if ! node -e "require('rollup')" 2>/dev/null; then
-            echo "Rollup failed to load, applying fix..."
-            rm -rf node_modules package-lock.json
-            npm install
-            
-            # Verify the fix worked
-            if ! node -e "require('rollup')" 2>/dev/null; then
-              echo "Rollup still failing, trying alternative approach..."
-              npm install --force
-            fi
-          fi
-
-          # Final verification
-          if node -e "require('rollup')" 2>/dev/null; then
-            echo "✅ Rollup is working correctly"
-          else
-            echo "❌ Rollup still not working, but continuing..."
-          fi
-
       - name: Build project
         run: |
-          # Try to build, with fallback if Rollup issues persist
+          echo "Building project with Vite..."
+          # Try to build first, with fallback if Rollup issues occur
           if ! npm run build; then
-            echo "Build failed, trying npm install fix and retry..."
+            echo "❌ Build failed, likely due to Rollup dependency issues"
+            echo "Applying Rollup dependency fix and retrying..."
             rm -rf node_modules package-lock.json
             npm install
+            echo "Retrying build after dependency refresh..."
             npm run build
+          else
+            echo "✅ Build succeeded on first attempt"
           fi
 
       - name: Upload build artifacts
@@ -305,37 +269,19 @@ jobs:
             npm install
           fi
 
-      - name: Fix Rollup binaries before build
-        run: |
-          echo "Ensuring Rollup binaries are properly installed for Vite build..."
-          # Check if Rollup can be loaded
-          if ! node -e "require('rollup')" 2>/dev/null; then
-            echo "Rollup failed to load, applying fix..."
-            rm -rf node_modules package-lock.json
-            npm install
-            
-            # Verify the fix worked
-            if ! node -e "require('rollup')" 2>/dev/null; then
-              echo "Rollup still failing, trying alternative approach..."
-              npm install --force
-            fi
-          fi
-
-          # Final verification
-          if node -e "require('rollup')" 2>/dev/null; then
-            echo "✅ Rollup is working correctly"
-          else
-            echo "❌ Rollup still not working, but continuing..."
-          fi
-
       - name: Build project
         run: |
-          # Try to build, with fallback if Rollup issues persist
+          echo "Building project with Vite..."
+          # Try to build first, with fallback if Rollup issues occur
           if ! npm run build; then
-            echo "Build failed, trying npm install fix and retry..."
+            echo "❌ Build failed, likely due to Rollup dependency issues"
+            echo "Applying Rollup dependency fix and retrying..."
             rm -rf node_modules package-lock.json
             npm install
+            echo "Retrying build after dependency refresh..."
             npm run build
+          else
+            echo "✅ Build succeeded on first attempt"
           fi
 
       - name: Extract version from package.json
