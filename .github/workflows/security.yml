@@ -72,7 +72,7 @@ jobs:
       - name: Run ESLint Security Rules
         run: |
           echo "ESLINT_RAN=false" >> $GITHUB_ENV
-          
+
           # Try to run ESLint if available
           if command -v npx &> /dev/null; then
             if npx eslint --version &> /dev/null; then

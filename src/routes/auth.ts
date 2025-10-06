@@ -8,17 +8,17 @@ import { RegisterData, LoginCredentials, ApiResponse, AuthUser } from '../types'
 const registerSchema = Joi.object({
   name: Joi.string().min(2).max(100).required(),
   email: Joi.string().email().required(),
-  password: Joi.string().min(8).required()
+  password: Joi.string().min(8).required(),
 });
 
 const loginSchema = Joi.object({
   email: Joi.string().email().required(),
-  password: Joi.string().required()
+  password: Joi.string().required(),
 });
 
 export function authRoutes(
-  authService: AuthService, 
-  databaseService: DatabaseService, 
+  authService: AuthService,
+  databaseService: DatabaseService,
   logger: Logger
 ): Router {
   const router = Router();
@@ -32,7 +32,7 @@ export function authRoutes(
         res.status(400).json({
           success: false,
           error: 'Validation Error',
-          message: error.details[0].message
+          message: error.details[0].message,
         } as ApiResponse);
         return;
       }
@@ -45,7 +45,7 @@ export function authRoutes(
         res.status(409).json({
           success: false,
           error: 'Conflict',
-          message: 'User already exists with this email'
+          message: 'User already exists with this email',
         } as ApiResponse);
         return;
       }
@@ -57,14 +57,14 @@ export function authRoutes(
       const user = await databaseService.createUser({
         name,
         email,
-        passwordHash
+        passwordHash,
       });
 
       // Generate token
       const authUser: AuthUser = {
         id: user._id,
         name: user.name,
-        email: user.email
+        email: user.email,
       };
       const token = authService.generateToken(authUser);
 
@@ -76,19 +76,18 @@ export function authRoutes(
           user: {
             id: user._id,
             name: user.name,
-            email: user.email
+            email: user.email,
           },
-          token
+          token,
         },
-        message: 'User registered successfully'
+        message: 'User registered successfully',
       } as ApiResponse);
-
     } catch (error) {
       logger.log('error', 'Registration error:', error);
       res.status(500).json({
         success: false,
         error: 'Internal Server Error',
-        message: 'Failed to register user'
+        message: 'Failed to register user',
       } as ApiResponse);
     }
   });
@@ -102,7 +101,7 @@ export function authRoutes(
         res.status(400).json({
           success: false,
           error: 'Validation Error',
-          message: error.details[0].message
+          message: error.details[0].message,
         } as ApiResponse);
         return;
       }
@@ -115,7 +114,7 @@ export function authRoutes(
         res.status(401).json({
           success: false,
           error: 'Unauthorized',
-          message: 'Invalid email or password'
+          message: 'Invalid email or password',
         } as ApiResponse);
         return;
       }
@@ -126,7 +125,7 @@ export function authRoutes(
         res.status(401).json({
           success: false,
           error: 'Unauthorized',
-          message: 'Invalid email or password'
+          message: 'Invalid email or password',
         } as ApiResponse);
         return;
       }
@@ -135,7 +134,7 @@ export function authRoutes(
       const authUser: AuthUser = {
         id: user._id,
         name: user.name,
-        email: user.email
+        email: user.email,
       };
       const token = authService.generateToken(authUser);
 
@@ -147,19 +146,18 @@ export function authRoutes(
           user: {
             id: user._id,
             name: user.name,
-            email: user.email
+            email: user.email,
           },
-          token
+          token,
         },
-        message: 'Login successful'
+        message: 'Login successful',
       } as ApiResponse);
-
     } catch (error) {
       logger.log('error', 'Login error:', error);
       res.status(500).json({
         success: false,
         error: 'Internal Server Error',
-        message: 'Failed to login'
+        message: 'Failed to login',
       } as ApiResponse);
     }
   });
@@ -171,12 +169,12 @@ export function authRoutes(
       // For demonstration, we'll extract token manually here
       const authService_instance = authService;
       const token = authService_instance.extractTokenFromHeader(req.headers.authorization);
-      
+
       if (!token) {
         res.status(401).json({
           success: false,
           error: 'Unauthorized',
-          message: 'No token provided'
+          message: 'No token provided',
         } as ApiResponse);
         return;
       }
@@ -186,7 +184,7 @@ export function authRoutes(
         res.status(401).json({
           success: false,
           error: 'Unauthorized',
-          message: 'Invalid token'
+          message: 'Invalid token',
         } as ApiResponse);
         return;
       }
@@ -196,7 +194,7 @@ export function authRoutes(
         res.status(404).json({
           success: false,
           error: 'Not Found',
-          message: 'User not found'
+          message: 'User not found',
         } as ApiResponse);
         return;
       }
@@ -207,17 +205,16 @@ export function authRoutes(
           user: {
             id: user._id,
             name: user.name,
-            email: user.email
-          }
-        }
+            email: user.email,
+          },
+        },
       } as ApiResponse);
-
     } catch (error) {
       logger.log('error', 'Profile error:', error);
       res.status(500).json({
         success: false,
         error: 'Internal Server Error',
-        message: 'Failed to get profile'
+        message: 'Failed to get profile',
       } as ApiResponse);
     }
   });
