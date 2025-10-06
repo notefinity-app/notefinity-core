@@ -227,7 +227,44 @@ npm run dev
 
 # Watch mode (rebuild on changes)
 npm run dev:watch
+
+# Development without authentication (recommended)
+npm run dev:no-auth
 ```
+
+### 🔐 Authentication Bypass for Development
+
+For faster development, authentication can be bypassed using environment variables:
+
+```bash
+# Start server without authentication
+NODE_ENV=development SKIP_AUTH=true npm run dev
+
+# Or use the convenient script
+npm run dev:no-auth
+```
+
+**When authentication is bypassed:**
+
+- All protected API endpoints work without tokens
+- Requests are automatically authenticated as `dev-user-123`
+- No need to register users or manage JWT tokens
+- Perfect for API testing and development
+
+**Example Usage:**
+
+```bash
+# These all work without authentication when SKIP_AUTH=true
+curl http://localhost:3001/api/pages
+curl http://localhost:3001/api/sync/data
+curl -X POST http://localhost:3001/api/pages -d '{"title":"Test","type":"page"}'
+```
+
+**Environment Variables:**
+
+- `NODE_ENV=development` - Enables development mode
+- `SKIP_AUTH=true` - Bypasses authentication middleware
+- Combined: Creates development user automatically
 
 ### Testing
 

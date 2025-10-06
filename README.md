@@ -97,9 +97,26 @@ cd core && npm start
 cd core && npm run dev:watch     # Server with auto-restart
 cd main && npm run dev:client    # React dev server (port 3000)
 
-# Option 3: Individual builds
+# Option 3: Development without authentication (fastest)
+cd core && npm run dev:no-auth   # No auth required for API testing
+cd main && npm run dev:full      # Client + API with auth bypass
+
+# Option 4: Individual builds
 cd main && npm run build         # Build React SPA + server extensions
 cd ../core && npm run build      # Build API server + copy client
+```
+
+**🔐 Authentication in Development:**
+
+For faster development, authentication can be disabled:
+
+```bash
+# Skip authentication (recommended for development)
+NODE_ENV=development SKIP_AUTH=true npm run dev
+
+# All API endpoints work without tokens
+curl http://localhost:3001/api/pages
+curl http://localhost:3001/api/sync/data
 ```
 
 ### Testing
