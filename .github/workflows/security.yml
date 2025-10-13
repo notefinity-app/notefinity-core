@@ -52,7 +52,7 @@ jobs:
           args: --severity-threshold=medium
 
       - name: Upload Snyk results to GitHub Code Scanning
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always() && env.SNYK_TOKEN != ''
         with:
           sarif_file: snyk.sarif
@@ -60,15 +60,15 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
           languages: javascript
 
       - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
+        uses: github/codeql-action/autobuild@v4
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4
 
       - name: Install ESLint and security plugins
         run: |
@@ -128,7 +128,7 @@ jobs:
           fi
 
       - name: Upload ESLint results
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: env.UPLOAD_SARIF == 'true'
         with:
           sarif_file: eslint-results.sarif
